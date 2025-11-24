@@ -1,22 +1,27 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = path.join(__dirname, 'valuation.db');
+// Use DATABASE_PATH environment variable or default to local file
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, 'valuation.db');
+
+// Ensure the directory exists
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
 const db = new sqlite3.Database(dbPath);
 
-// Initialize database schema
+// Migration tracking table
+const migrations = [];
+
+// Initialize database schema (legacy - kept for backward compatibility)
 function initializeDatabase() {
   return new Promise((resolve, reject) => {
     db.serialize(() => {
-      // Users table
-      db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-          id TEXT PRIMARY KEY,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `, (err) => {
-        if (err && err.code !== 'SQLITE_ERROR') console.error(err);
-      });
+      // Note: Users table is created and managed by migrations
+      // Skip creating it here to avoid conflicts with migration 001
 
       // Valuations table
       db.run(`
@@ -51,6 +56,61 @@ function initializeDatabase() {
   });
 }
 
+// Create migrations table for tracking applied migrations
+function initMigrations() {
+  return new Promise((resolve, reject) => {
+    db.run(`
+      CREATE TABLE IF NOT EXISTS migrations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
+
+// Run pending migrations
+async function runMigrations() {
+  try {
+    await initMigrations();
+
+    // Get list of migration files
+    const migrationsDir = path.join(__dirname, 'migrations');
+    if (!fs.existsSync(migrationsDir)) {
+      fs.mkdirSync(migrationsDir, { recursive: true });
+      console.log('Migrations directory created');
+      return;
+    }
+
+    const files = fs.readdirSync(migrationsDir)
+      .filter(f => f.endsWith('.js'))
+      .sort();
+
+    for (const file of files) {
+      const migrationName = path.basename(file, '.js');
+
+      // Check if migration already applied
+      const exists = await get('SELECT * FROM migrations WHERE name = ?', [migrationName]);
+
+      if (!exists) {
+        console.log(`Running migration: ${migrationName}`);
+        const migration = require(path.join(migrationsDir, file));
+        await migration.up(db, run, get, all);
+        await run('INSERT INTO migrations (name) VALUES (?)', [migrationName]);
+        console.log(`✓ Migration completed: ${migrationName}`);
+      }
+    }
+
+    console.log('All migrations completed');
+  } catch (err) {
+    console.error('Migration error:', err);
+    throw err;
+  }
+}
+
 // Database helper methods
 function run(sql, params = []) {
   return new Promise((resolve, reject) => {
@@ -82,6 +142,8 @@ function all(sql, params = []) {
 module.exports = {
   db,
   initializeDatabase,
+  initMigrations,
+  runMigrations,
   run,
   get,
   all
