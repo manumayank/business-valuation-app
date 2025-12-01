@@ -1,0 +1,309 @@
+1. Full VAC question set (to be built into the app)
+A. Pre-call “Owner Questions” (discovery / context)
+
+These are ideal for a quick pre-call or first screen:
+
+Why is this important to you?
+
+Is there anything particular you want to achieve from our call today?
+
+In the app:
+
+Shown only to the advisor (for notes) or included in the owner’s first questionnaire step.
+
+Stored as part of the “Engagement” so they show up in reports/summary.
+
+B. STEP 1 – Risk Analysis questions
+
+These become your risk/sellability section:
+
+When is your fiscal year end?
+
+Is your business incorporated?
+
+Did your company report profit last year?
+
+Did your company make profit in the last six months?
+
+What was your financial trend over the last five years?
+
+How many years of clean accountant-generated financials do you have?
+
+Do you have a general manager that runs the business?
+
+Is your business project-based?
+
+What percent of sales does your largest customer represent?
+
+How many hours a week do you work “IN” the business?
+
+How much time is left on your lease, including renewal periods?
+
+How long has your company been running?
+
+What best describes your business operating system?
+
+How do your customers pay you?
+
+(For Advisor) Number of single points of failure (SPOF)?
+
+What do you need to sell your business for? Please explain.
+
+In the app:
+
+These form a dedicated Risk & Sellability step in the owner/advisor questionnaire.
+
+For Q15, the UI will link to the “Single Points of Failure” helper list (Key personnel, customer concentration, supply chain, IT, etc.) so the advisor can quickly classify SPOFs and enter a count/notes.
+
+Answers feed into a risk score and the choice of multiples / probability of sale.
+
+C. STEP 2 – Earnings Analysis questions
+
+These feed the earnings normalization / VAC quick calc:
+
+What was your top line revenue last year?
+
+What was your pre-tax profit last year?
+
+What was your amortization/depreciation last year?
+
+What was your long-term interest expense last year?
+
+What was your discretionary spending last year?
+
+Do you pay yourself a salary above or below market rate?
+
+Does your company pay market rate rent to yourself or the holdco?
+
+In the app:
+
+These sit in a “Quick Financial Snapshot” section.
+
+For deeper valuations, these will auto-reconcile with uploaded P&L/BS and the full MVA engine (instead of contradicting it).
+
+Advisor can override or correct values if the quick answers don’t match the uploaded statements.
+
+D. STEP 3 – EBITDA Multiples questions
+
+These are your valuation settings / assumptions:
+
+What multiples would you like to use?
+
+Would you like risk weighting on or off?
+
+Is the company Canadian?
+
+Custom Multiple (free-form numeric input)
+
+In the app:
+
+Shown only on the Advisor side (or hidden behind an “Advanced settings” toggle).
+
+Defaults can be driven by:
+
+Industry (from NAICS),
+
+Geography (Canadian / non-Canadian),
+
+Risk score.
+
+Admin can set firm-level defaults for typical multiples and how risk weighting behaves.
+
+2. Deep financial records – what the app should ask for
+
+On top of the VAC questions, we explicitly build a “Documents & Financials” step (or tab) in the questionnaire, with:
+
+Required uploads (for full valuation / MPSP)
+
+P&L / Income Statements
+
+Last 3–5 years (PDF/Excel)
+
+Year-to-date if available.
+
+Balance Sheets
+
+Last 3–5 years.
+
+Tax returns (business, and optionally personal for very small main-street deals).
+
+AR and AP Aging Reports
+
+To support working capital and SPOF (customer concentration, supplier risk).
+
+Fixed Asset / FF&E list
+
+For cost/asset approach and CBP equipment sections.
+
+Bank statements (optional but useful for reality check and cash-flow analysis).
+
+Any forecasts / internal budgets if the owner has them.
+
+How the app should behave
+
+Owner view
+
+Clear checklist of required and optional documents.
+
+Drag & drop upload, with “uploaded / pending” indicators.
+
+Tooltips explaining why each doc is needed (“This helps us calculate working capital and support your valuation for buyers and lenders”).
+
+Advisor view
+
+Ability to mark a doc as “accepted / rejected / needs clarification”.
+
+Option to override missing docs by manually entering numbers while flagging the valuation as “limited by information”.
+
+These documents then feed the MVA + MPSP engines you’re building on top of the existing Excel logic.
+
+3. Administrative backend – how it manages questionnaires & evaluations
+
+Here’s how I’d wire the backend to do what you described:
+
+A. Core concepts
+
+Business – the company being valued.
+
+Engagement – one valuation/evaluation instance for that business (you can have multiple over time).
+
+Questionnaire Template – the bundle of VAC + MVA questions and logic.
+
+Questionnaire Response – that specific business’s answers and uploaded documents.
+
+Valuation Run – a snapshot of calculations and report outputs for an engagement.
+
+B. Admin capabilities
+1. Creating and managing questionnaires
+
+Manage the master question set (which includes all VAC questions + additional ones):
+
+Mark which questions are:
+
+Owner-visible
+
+Advisor-only
+
+Optional / mandatory
+
+Financial vs risk vs qualitative.
+
+Create templates:
+
+e.g., “Standard VAC + MVA”, “Lite Evaluation”, “Manufacturing Deep Dive”.
+
+Versioning:
+
+When you change a template, new engagements use the new version; old valuations retain the version they were created with (for audit trail).
+
+This guarantees the VAC questions are always present in any relevant template, because they’re part of the base template that other templates extend.
+
+2. Creating evaluation instances for a business
+
+From the admin panel:
+
+Create Business (or select existing).
+
+Click “New Engagement”:
+
+Choose template (e.g., “Standard Valuation + Action Plan”).
+
+Assign advisor.
+
+Choose whether:
+
+Owner fills it (send secure link), or
+
+Advisor fills it during a call.
+
+System generates:
+
+A unique questionnaire link for the owner.
+
+An internal Engagement Dashboard for the advisor.
+
+C. Reviewing and approving owner-filled valuations
+
+In the Engagement Dashboard (admin/advisor side):
+
+Overview panel
+
+Completion percentage (questions answered, docs uploaded).
+
+Status badges: “Intake in progress”, “Ready for review”, “Valuation drafted”, “Reports generated”.
+
+Questionnaire review
+
+Side-by-side view:
+
+Owner’s answers.
+
+Advisor notes / overrides.
+
+Ability to:
+
+Correct obvious mistakes (e.g., misplaced commas, extra zeros).
+
+Add comments (“Owner says profit has been ‘flat’ but P&L shows 12% growth; clarify”).
+
+Financial reconciliation
+
+Automated checks:
+
+Does “top line revenue last year” from VAC (STEP 2 Q1) match the uploaded P&L?
+
+If not, flag discrepancy for advisor review.
+
+Advisor can choose which figure to trust in the final valuation.
+
+Valuation run control
+
+Button to “Run Valuation” once admin is happy with the data.
+
+System stores a timestamped Valuation Run:
+
+Inputs (key assumptions, multiples, risk-weighting on/off, Canadian flag).
+
+Outputs (valuation range, MPSP, VAC uplift, working capital analysis).
+
+Report generation
+
+Checkboxes for which reports to generate:
+
+VAC one-pager, Business Profile, CBP/MVA, MPSP, Action Plan.
+
+Generate & store as PDFs with links in the engagement.
+
+D. Business self-registration flow
+
+If a business comes in directly:
+
+Owner self-registers (simple sign-up): company name, email, rough industry.
+
+System auto-creates:
+
+A Business record.
+
+A default Engagement using your “Standard Owner Self-Assessment” template (includes all VAC questions + a basic doc checklist).
+
+Owner completes questionnaire & uploads documents.
+
+Admin panel surfaces:
+
+New engagement in a “New Leads / Self-Registered” list.
+
+An internal status: “Needs Advisor Assignment”.
+
+Admin assigns an advisor, who then:
+
+Reviews data,
+
+Possibly schedules a call, and
+
+Runs the valuation when ready.
+
+This gives you both:
+
+Top-down usage (you create engagements for clients), and
+
+Bottom-up usage (owners come in from your website and start the process themselves).

@@ -1,0 +1,382 @@
+✅ PRD SECTION — VAC ENGINE CALCULATION SPECIFICATION
+1. Overview
+
+The Value Acceleration Calculator (VAC) computes:
+
+Risk Score
+
+Normalized Earnings & EBITDA
+
+EBITDA Multiple (custom/common/industry/risk-adjusted)
+
+Current Valuation
+
+Value Acceleration Uplift across:
+
+Size Increase
+
+Efficiency Increase
+
+Multiple Increase (Risk
+Reduction)
+
+Probability-weighted valuation distribution
+
+Wealth Gap projection
+
+All formulas below must be implemented exactly to match Excel behavior.
+
+2. Input Definitions
+2.1. Risk Questions (Step 1)
+
+Each question returns a score between 1–5.
+
+Inputs come from user-selected dropdowns or manual text entry.
+
+Inputs:
+- fiscalYearEnd: "Yes/No"
+- incorporated: "Yes/No"
+- profitLastYear: "Yes/No"
+- lastSixMonthPerformance: dropdown
+- cleanFinancialYears: dropdown
+- hasGeneralManager: "Yes/No"
+- projectBased: dropdown
+- largestCustomerPercent: dropdown
+- ownerHours: dropdown
+- leaseYearsRemaining: dropdown
+- businessAge: dropdown
+- operatingSystem: dropdown
+- customerPaymentTerms: dropdown
+- numberOfSPOFs: integer
+- neededSalePrice: number
+
+3. RISK SCORE COMPUTATION LOGIC
+
+For each question, evaluate the mapping exactly:
+
+Q1 – Fiscal year end
+score = (fiscalYearEnd == "yes") ? 5 : 1
+
+Q2 – Incorporated
+score = (incorporated == "yes") ? 5 : 1
+
+Q3 – Profit last year
+score = (profitLastYear == "yes") ? 5 : 1
+
+Q4 – Profit in last 6 months
+if performance == "10%+ YOY Steady Growth" → 5
+else if performance == "Modest YOY Steady Growth" → 4
+else if performance == "Flat" → 3
+else if performance == "Declining" → -3
+else → 1
+
+Q5 – Clean Accountant Financials
+if years == "5+ years" → 5
+if years == "3+ years" → 4
+if years == "1–2 years" → 3
+else → 1
+
+Q6 – Has GM
+(hasGeneralManager == "yes") ? 5 : 1
+
+Q7 – Project-based?
+if "No" → 5
+if "Between" → 3
+else → 1
+
+Q8 – Customer concentration
+if "<10%" → 5
+if "Between 5–15%" → 4
+if "Under 5%" → 4
+if "15–25%" → 3
+else → 1
+
+Q9 – Owner hours per week
+if "<10" → 5
+if "<20" → 4
+if "<30" → 3
+else → 1
+
+Q10 – Lease Years Remaining
+if "Over 10 years" OR "Building Owned" → 5
+if "Between 5–10 years" → 4
+else → 1
+
+Q11 – Company Age
+if "Over 25 years" → 5
+if "Over 15 years" → 4
+else → 1
+
+Q12 – Operating System
+if "Cloudbased ERP" → 5
+if "Customized CRM" → 3
+else → 1
+
+Q13 – Payment Terms
+if "Contracted Recurring Monthly" → 5
+if "30–60 day terms" → 4
+if "60–90 day terms" → 3
+else → 1
+
+Q14 – SPOF count
+if spofs == 0 → 5
+if spofs == 1 → 4
+if spofs in [2,3] → 3
+if spofs in [4,5] → 2
+else → 1
+
+RISK SCORE TOTAL
+riskScore = sum(all risk question scores)
+
+4. STEP 2 — EARNINGS ANALYSIS
+
+Inputs:
+
+revenue
+pretaxProfit
+depreciation
+interest
+discretionarySpending
+ownerSalaryAdj
+rentAdj
+
+
+Baseline margins (fixed):
+
+Revenue margin: 1
+Pre-tax margin: 0.075
+Depreciation: 0.01
+Interest: 0.01
+Discretionary Spending: 0.02
+
+Baseline Values
+baselineRevenue = revenue * 1
+baselinePretax = revenue * 0.075
+baselineDep = revenue * 0.01
+baselineInterest = revenue * 0.01
+baselineDiscretionary = revenue * 0.02
+
+EBITDA CALCULATION
+
+Excel logic:
+
+IF(ISBLANK(H30),
+    baselineRevenue + baselinePretax + baselineDep + baselineInterest + discretionary,
+    pretaxProfit + depreciation + interest + discretionary
+)
+
+
+Backend formula:
+
+if fromFinancialsMissing:
+    EBITDA = baselinePretax + baselineDep + baselineInterest + discretionarySpending
+else:
+    EBITDA = pretaxProfit + depreciation + interest + discretionarySpending
+
+EBITDA Margin
+if revenue == 0 → 0
+else EBITDA / revenue
+
+5. STEP 3 — MULTIPLES
+
+Inputs:
+
+multipleType: custom / common / industry
+
+customMultiple
+
+baseMultipleCommon
+
+baseMultipleIndustry
+
+riskWeighting: on/off
+
+Multiple Used
+if multipleType == "Use Custom Multiple":
+    multipleUsed = customMultiple
+else if multipleType == "Use Common Multiples":
+    multipleUsed = commonMultipleMedian
+else:
+    multipleUsed = industryMultipleMedian
+
+6. CURRENT ENTERPRISE VALUE
+currentValue = EBITDA * multipleUsed
+
+7. VALUE ACCELERATION CALCULATIONS
+
+VAC has 3 levers:
+
+Size Increase (% growth on revenue)
+
+Efficiency Increase (% improvement in profit margin)
+
+Multiple Increase (% increase in EBITDA multiple)
+
+7.1. SIZE LEVER
+
+Inputs:
+
+targetSizeGrowthRate (EA)
+
+
+Revenue:
+
+newRevenue = baseRevenue * (1 + EA)
+
+
+Expenses:
+
+newCOGS = baseCOGS * efficiency
+newProfit = newRevenue - newExpenses
+newAdjEBITDA = newProfit * margin
+
+
+Value:
+
+sizeAdjustedValue = newAdjEBITDA * multipleUsed
+valueCreatedSize = sizeAdjustedValue - currentValue
+valueCreatedSizePct = valueCreatedSize / currentValue
+
+7.2. EFFICIENCY LEVER
+
+Inputs:
+
+targetEfficiencyImprovement (E)
+
+
+Revenue remains constant.
+
+Adjusted EBITDA:
+
+newAdjEBITDA = baseEBITDA + (efficiencyGain)
+
+
+Value:
+
+effAdjustedValue = newAdjEBITDA * multipleUsed
+valueCreatedEfficiency = effAdjustedValue - currentValue
+valueCreatedEfficiencyPct = valueCreatedEfficiency / currentValue
+
+7.3. MULTIPLE/RISK LEVER
+
+Inputs:
+
+targetMultipleIncrease (M)
+
+
+Adjusted Multiple:
+
+newMultiple = baseMultiple + (baseMultiple * M)
+
+
+Value:
+
+riskAdjustedValue = newMultiple * baseEBITDA
+valueCreatedMultiple = riskAdjustedValue - currentValue
+valueCreatedMultiplePct = valueCreatedMultiple / currentValue
+
+8. PROBABILITY ANALYSIS (VALUATION DISTRIBUTION)
+
+Excel distributes EBITDA multiples along standard deviation increments.
+
+For each SD step:
+
+multiple = meanMultiple + (stdDevStep * (stdDevRange/4))
+mvicValue = EBITDA * multiple
+probability = fixed probability (0.1, 0.2, etc.)
+
+
+Sum probabilities = 1.
+
+Aggregate Expected Value:
+
+expectedValue = Σ (probability_i * mvicValue_i)
+
+9. WEALTH GAP CALCULATOR
+
+Inputs:
+
+growthRate
+profitMargin
+multiple
+yearsToExit
+initialRevenue
+initialEBITDA
+
+Yearly revenue:
+rev[0] = initialRevenue
+rev[n] = rev[n-1] * (1 + growthRate)
+
+Yearly EBITDA:
+ebitda[n] = rev[n] * profitMargin
+
+Yearly Value:
+salePrice[n] = ebitda[n] * multiple
+
+Years to reach target:
+
+Excel:
+
+yearsToExit = -1 * ( LN(target / current) / LN(1 / (1 + growthRate)) )
+
+10. OUTPUTS
+
+Backend must return:
+
+{
+  riskScore,
+  EBITDA,
+  EBITDA_margin,
+  sizeScore,
+  multipleUsed,
+  currentValue,
+
+  uplift: {
+    size: {value, percent},
+    efficiency: {value, percent},
+    multiple: {value, percent},
+    totalIncrease,
+    newValue
+  },
+
+  probabilityDistribution: [
+    {stdDev, multiple, mvic, probability}
+  ],
+
+  wealthGap: {
+    yearlyTable: [
+       {year, revenue, EBITDA, salePrice}
+    ],
+    yearsToExit
+  }
+}
+
+11. NON-FUNCTIONAL REQUIREMENTS
+
+All calculations must use double precision floating point.
+
+Backend must accept numerical input with commas removed.
+
+Backend must sanitize dropdown values and map them to exact scoring categories.
+
+Ensure deterministic output (no randomization).
+
+Must allow batch recalculation if assumptions change.
+
+12. VALIDATION REQUIREMENTS
+
+Backend output must match Excel for:
+
+±0.01% deviation on EBITDA
+
+±0.01% deviation on valuation
+
+Exact match on risk score, size score, distribution multiples
+
+Wealth gap results must match to nearest dollar
+
+You will later provide sample XLSX test cases for verification.
+
+⭐ Your VAC engine is now fully defined.
+
+This can be dropped directly into your PRD as the “Calculation Layer Specification.”

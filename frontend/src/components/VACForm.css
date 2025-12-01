@@ -1,0 +1,352 @@
+.vac-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.vac-form-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.vac-form-header h2 {
+  color: #1a365d;
+  margin-bottom: 8px;
+}
+
+.vac-form-header p {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Progress Bar */
+.vac-progress {
+  margin-bottom: 30px;
+}
+
+.vac-progress-bar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.vac-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3182ce, #2b6cb0);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.vac-progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.vac-progress-step {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.vac-progress-step.active {
+  background: #3182ce;
+  color: #fff;
+}
+
+.vac-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Form Content */
+.vac-step {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vac-step h3 {
+  color: #2d3748;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.step-description {
+  color: #718096;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.section-hint {
+  color: #718096;
+  font-size: 13px;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.vac-section {
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f7fafc;
+  border-radius: 8px;
+}
+
+.vac-section h4 {
+  color: #2d3748;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+/* Form Groups */
+.vac-form-group {
+  margin-bottom: 20px;
+}
+
+.vac-form-group label {
+  display: block;
+  font-weight: 500;
+  color: #2d3748;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.vac-form-group input[type="text"],
+.vac-form-group input[type="number"],
+.vac-form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.vac-form-group input:focus,
+.vac-form-group select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.vac-form-group input.error,
+.vac-form-group select.error {
+  border-color: #e53e3e;
+}
+
+.vac-form-group small {
+  display: block;
+  color: #718096;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.helper-text {
+  color: #718096;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.error-text {
+  color: #e53e3e;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Row Layout */
+.vac-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+/* Radio Groups */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Checkbox */
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Industry Dropdown */
+.industry-dropdown {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+}
+
+.industry-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.industry-option:hover {
+  background: #f7fafc;
+}
+
+.industry-code {
+  font-weight: 600;
+  color: #3182ce;
+  min-width: 60px;
+}
+
+.industry-title {
+  color: #2d3748;
+  font-size: 13px;
+}
+
+.selected-industry {
+  color: #38a169;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* Error Banner */
+.vac-error-banner {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+/* Form Actions */
+.vac-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-cancel {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #3182ce;
+  color: #fff;
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #2b6cb0;
+}
+
+.btn-primary:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #3182ce;
+  border: 1px solid #3182ce;
+}
+
+.btn-secondary:hover {
+  background: #ebf8ff;
+}
+
+.btn-cancel {
+  background: #fff;
+  color: #718096;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-cancel:hover {
+  background: #f7fafc;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .vac-form-container {
+    padding: 15px;
+  }
+
+  .vac-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .vac-progress-labels {
+    font-size: 10px;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .vac-form-actions {
+    flex-direction: column;
+  }
+
+  .vac-form-actions button {
+    width: 100%;
+  }
+}

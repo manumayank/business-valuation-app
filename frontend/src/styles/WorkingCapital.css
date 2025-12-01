@@ -1,0 +1,1096 @@
+/* Working Capital Components Styling */
+
+/* ============================================
+   FORM STYLING
+   ============================================ */
+
+.working-capital-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.wc-form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.wc-form-header h2 {
+  font-size: 1.8rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.wc-form-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Progress Bar */
+.wc-progress-container {
+  margin-bottom: 2rem;
+}
+
+.wc-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.wc-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.wc-progress-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: right;
+}
+
+/* Error Message */
+.wc-error-message {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+/* Step Content */
+.wc-step-content {
+  margin-bottom: 2rem;
+}
+
+.wc-step-title {
+  font-size: 1.3rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.wc-step-description {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Fields */
+.wc-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.wc-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.wc-form-label {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.wc-form-input {
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  font-family: inherit;
+}
+
+.wc-form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+}
+
+.wc-form-input.error {
+  border-color: #ef4444;
+}
+
+.wc-form-input:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.wc-form-hint {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.wc-form-error {
+  font-size: 0.85rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+/* Navigation */
+.wc-form-navigation {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.wc-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.wc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wc-btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #1f2937);
+  color: white;
+  min-width: 140px;
+}
+
+.wc-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.wc-btn-secondary {
+  background: #e5e7eb;
+  color: #1f2937;
+  min-width: 140px;
+}
+
+.wc-btn-secondary:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.wc-btn-cancel {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  min-width: 140px;
+}
+
+.wc-btn-cancel:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.wc-btn-submit {
+  width: 100%;
+}
+
+/* ============================================
+   ANALYSIS STYLING
+   ============================================ */
+
+.working-capital-analysis {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.wc-summary-section,
+.wc-risk-section,
+.wc-valuation-impact-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1.5rem 0;
+}
+
+/* Metrics Grid */
+.wc-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.wc-metric-card {
+  background: linear-gradient(135deg, #f8fafc, #f3f4f6);
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.wc-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+}
+
+.wc-metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.wc-metric-header h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.wc-metric-code {
+  background: #e0e7ff;
+  color: #3b82f6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.wc-metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.wc-metric-benchmark {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.wc-metric-gap {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.wc-metric-status {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.wc-metric-description {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.wc-metric-positive-indicator {
+  background: #d1fae5;
+  color: #059669;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.wc-ccc-card {
+  grid-column: span 1;
+}
+
+/* Working Capital Percentage */
+.wc-percentage-section {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.wc-percentage-section h4 {
+  color: #78350f;
+  margin: 0 0 1rem 0;
+}
+
+.wc-percentage-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #b45309;
+  margin-bottom: 0.5rem;
+}
+
+.wc-percentage-benchmark {
+  color: #92400e;
+  font-size: 0.95rem;
+}
+
+/* Risk Assessment */
+.wc-risk-card {
+  background: linear-gradient(135deg, #f8fafc, #f3f4f6);
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.wc-risk-score-display {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.wc-risk-circle {
+  width: 120px;
+  height: 120px;
+  border: 4px solid;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wc-risk-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.wc-risk-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wc-risk-details {
+  flex: 1;
+}
+
+.wc-risk-grade {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.wc-risk-assessment {
+  margin: 0;
+  color: #374151;
+  font-weight: 500;
+}
+
+.wc-risk-factors {
+  margin-top: 1.5rem;
+}
+
+.wc-risk-factors h5 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.wc-factors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.wc-factor-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.wc-factor-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+}
+
+.wc-factor-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* Valuation Impact */
+.wc-impact-card {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border: 1px solid #93c5fd;
+  border-radius: 10px;
+  padding: 2rem;
+}
+
+.wc-impact-content {
+  text-align: center;
+}
+
+.wc-impact-content h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1e40af;
+  font-size: 1.2rem;
+}
+
+.wc-impact-content p {
+  margin: 0 0 1.5rem 0;
+  color: #1e3a8a;
+}
+
+.wc-impact-highlight {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: inline-block;
+}
+
+.impact-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 0.5rem;
+}
+
+.impact-label {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.wc-analysis-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   OPTIMIZATION STYLING
+   ============================================ */
+
+.working-capital-optimization {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.wc-optimization-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.wc-optimization-header h3 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.wc-subtitle {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Scenario Tabs */
+.wc-scenario-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.wc-scenario-tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.wc-scenario-tab:hover {
+  color: #1f2937;
+}
+
+.wc-scenario-tab.active {
+  color: #1f2937;
+}
+
+.scenario-icon {
+  font-size: 1.2rem;
+}
+
+/* Scenario Content */
+.wc-scenario-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wc-scenario-description {
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  color: #374151;
+}
+
+.wc-scenario-metrics {
+  margin-bottom: 2rem;
+}
+
+.wc-scenario-metrics h4 {
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.wc-metrics-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.metric-comparison-item {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.metric-current,
+.metric-target {
+  flex: 1;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.metric-arrow {
+  font-size: 1.5rem;
+  color: #9ca3af;
+}
+
+/* Financial Impact */
+.wc-financial-impact {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.wc-financial-impact h4 {
+  margin: 0 0 1.5rem 0;
+  color: #166534;
+}
+
+.impact-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.impact-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+}
+
+.impact-source {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.impact-amount {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.impact-total {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid #bbf7d0;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.impact-total-label {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.impact-total-amount {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.impact-valuation {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+  text-align: center;
+}
+
+.impact-valuation-label {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.impact-valuation-amount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.impact-note {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Implementation Info */
+.wc-implementation-info {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.wc-implementation-info h4 {
+  margin: 0 0 1rem 0;
+  color: #78350f;
+}
+
+.implementation-content {
+  color: #92400e;
+  line-height: 1.6;
+}
+
+.implementation-content p {
+  margin: 0.5rem 0;
+}
+
+.implementation-timeline {
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  border-left: 4px solid #f59e0b;
+}
+
+.wc-optimization-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   RECOMMENDATIONS STYLING
+   ============================================ */
+
+.working-capital-recommendations {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.wc-recommendations-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.wc-recommendations-header h3 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+/* Filter Tabs */
+.wc-filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.wc-filter-tab {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.wc-filter-tab:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.wc-filter-tab.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* Recommendations List */
+.wc-recommendations-list {
+  margin-bottom: 2rem;
+}
+
+.wc-empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #9ca3af;
+}
+
+.wc-recommendation-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid;
+  display: flex;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.wc-recommendation-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.wc-recommendation-card.completed {
+  opacity: 0.6;
+  background: #f9fafb;
+}
+
+.wc-recommendation-card.completed .rec-title {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* Checkbox */
+.rec-checkbox-container {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.rec-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.rec-checkbox-label {
+  cursor: pointer;
+}
+
+/* Content */
+.rec-content {
+  flex: 1;
+}
+
+.rec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.rec-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.rec-priority-badge {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rec-description {
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Details */
+.rec-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rec-detail-item {
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.detail-label {
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.detail-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Steps */
+.rec-steps {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  border-left: 3px solid #3b82f6;
+}
+
+.rec-steps h5 {
+  margin: 0 0 0.75rem 0;
+  color: #1f2937;
+  font-size: 0.9rem;
+}
+
+.rec-steps ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.rec-steps li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Completed Icon */
+.rec-completed-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d1fae5;
+  color: #059669;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Summary Statistics */
+.wc-recommendations-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
+.summary-stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #059669;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.wc-recommendations-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .working-capital-form-container {
+    padding: 1rem;
+  }
+
+  .wc-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wc-ccc-card {
+    grid-column: span 1;
+  }
+
+  .wc-form-navigation {
+    flex-direction: column;
+  }
+
+  .wc-btn {
+    width: 100%;
+  }
+
+  .wc-risk-score-display {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .metric-comparison-item {
+    flex-direction: column;
+  }
+
+  .metric-arrow {
+    transform: rotate(90deg);
+  }
+
+  .impact-breakdown {
+    grid-template-columns: 1fr;
+  }
+
+  .wc-scenario-tabs {
+    justify-content: flex-start;
+  }
+
+  .wc-recommendations-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .working-capital-form-container {
+    padding: 0.75rem;
+  }
+
+  .wc-form-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .wc-metric-value {
+    font-size: 1.5rem;
+  }
+
+  .rec-header {
+    flex-direction: column;
+  }
+
+  .wc-filter-tabs {
+    gap: 0.25rem;
+  }
+
+  .wc-filter-tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}

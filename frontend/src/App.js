@@ -1,118 +1,143 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
-import Wizard from './components/Wizard';
-import Dashboard from './components/Dashboard';
-import { createUserSession, checkHealth } from './services/api';
+
+// Contexts
+import { AuthProvider } from './contexts/AuthContext';
+
+// Pages
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ValuationApp from './pages/ValuationApp';
+import VACPage from './pages/VACPage';
+import EngagementPage from './pages/EngagementPage';
+import AdvisorDashboard from './pages/AdvisorDashboard';
+import BusinessPortal from './pages/BusinessPortal';
+import AdminDashboard from './pages/AdminDashboard';
+
+// Components
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Services
+import { checkHealth } from './services/api';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState('wizard'); // 'wizard' or 'dashboard'
-  const [userId, setUserId] = useState(null);
-  const [valuationId, setValuationId] = useState(null);
-  const [valuation, setValuation] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
+  const [apiLoading, setApiLoading] = useState(true);
 
-  // Initialize user session on mount
+  // Check API health on app load
   useEffect(() => {
-    const initializeApp = async () => {
+    const checkAPI = async () => {
       try {
-        // Check API health first
         await checkHealth();
-
-        // Create user session
-        const { userId: newUserId } = await createUserSession();
-        setUserId(newUserId);
         setApiError(null);
       } catch (error) {
-        setApiError('Failed to connect to the server. Please ensure the backend is running on http://localhost:5000');
-        console.error('Initialization error:', error);
+        setApiError(
+          'Backend server is not running. Please start it with: cd backend && npm start'
+        );
+        console.error('API health check failed:', error);
       } finally {
-        setLoading(false);
+        setApiLoading(false);
       }
     };
 
-    initializeApp();
+    checkAPI();
   }, []);
 
-  const handleWizardComplete = (valuationData, newValuationId) => {
-    setValuation(valuationData);
-    setValuationId(newValuationId);
-    setCurrentScreen('dashboard');
-  };
-
-  const handleReturnToWizard = () => {
-    setCurrentScreen('wizard');
-  };
-
-  const handleValuationUpdate = (updatedValuation) => {
-    setValuation(updatedValuation);
-  };
-
-  if (loading) {
-    return (
-      <div className="app">
-        <div className="loading-container">
-          <h2>Loading...</h2>
-        </div>
-      </div>
-    );
-  }
-
-  if (apiError) {
+  // Show API error if backend is down
+  if (apiError && !apiLoading) {
     return (
       <div className="app">
         <div className="error-container">
-          <h2>Connection Error</h2>
+          <h2>⚠️ Connection Error</h2>
           <p>{apiError}</p>
-          <p>Make sure to run the backend server first:</p>
           <code>cd backend && npm install && npm start</code>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userId) {
-    return (
-      <div className="app">
-        <div className="error-container">
-          <h2>Error</h2>
-          <p>Failed to initialize the application.</p>
+          <p style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
+            The frontend is running, but it needs the backend server to function.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <div className="container">
-          <h1>Business Valuation & Improvement</h1>
-          <p className="subtitle">Estimate your company value and identify growth opportunities</p>
-        </div>
-      </header>
+    <AuthProvider>
+      <Router>
+        <div className="app">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-      <main className="app-main">
-        <div className="container">
-          {currentScreen === 'wizard' ? (
-            <Wizard
-              userId={userId}
-              onComplete={handleWizardComplete}
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <AdvisorDashboard />
+                </ProtectedRoute>
+              }
             />
-          ) : (
-            <Dashboard
-              valuation={valuation}
-              valuationId={valuationId}
-              onReturnToWizard={handleReturnToWizard}
-              onValuationUpdate={handleValuationUpdate}
-            />
-          )}
-        </div>
-      </main>
 
-      <footer className="app-footer">
-        <p>&copy; 2024 Business Valuation App. All valuations are estimates.</p>
-      </footer>
-    </div>
+            {/* Main entry point - Advisor Dashboard */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <AdvisorDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Legacy Valuation App (wizard) */}
+            <Route
+              path="/valuation"
+              element={
+                <ProtectedRoute>
+                  <ValuationApp />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* VAC (Value Acceleration Calculator) Route */}
+            <Route
+              path="/vac"
+              element={
+                <ProtectedRoute>
+                  <VACPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Engagement Detail Page */}
+            <Route
+              path="/engagements/:engagementId"
+              element={
+                <ProtectedRoute>
+                  <EngagementPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Business Portal - Public with access token */}
+            <Route path="/business-portal/:accessToken" element={<BusinessPortal />} />
+
+            {/* Admin Dashboard - Protected */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch all - redirect to home or login */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

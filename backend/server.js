@@ -1,27 +1,103 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const { v4: uuidv4 } = require('uuid');
-const { initializeDatabase, run, get, all } = require('./db');
+const { initializeDatabase, runMigrations, run, get, all } = require('./db');
 const { calculateValuation } = require('./valuationEngine');
+const authRoutes = require('./routes/authRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const workingCapitalRoutes = require('./routes/workingCapitalRoutes');
+const dealAnalysisRoutes = require('./routes/dealAnalysisRoutes');
+const businessRoutes = require('./routes/businessRoutes');
+const engagementRoutes = require('./routes/engagementRoutes');
+const teamRoutes = require('./routes/teamRoutes');
+const vacRoutes = require('./routes/vacRoutes');
+const documentRoutes = require('./routes/documentRoutes');
+const businessPortalRoutes = require('./routes/businessPortalRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const { requireAuth, notFound, errorHandler } = require('./middleware/authMiddleware');
 
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Middleware - Security
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Initialize database
-initializeDatabase().then(() => {
-  console.log('Database initialized');
-}).catch(err => {
-  console.error('Database initialization error:', err);
+// Middleware - Inject database functions into all requests
+app.use((req, res, next) => {
+  req.db = { run, get, all };
+  next();
 });
 
-// Routes
+// Initialize database and run migrations
+async function startServer() {
+  try {
+    await initializeDatabase();
+    console.log('✓ Database initialized');
 
+    await runMigrations();
+    console.log('✓ Migrations completed');
+
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`\n🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Startup error:', err);
+    process.exit(1);
+  }
+}
+
+startServer();
+
+// Health check (public - must be before other /api routes)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Authentication Routes (public - no auth required)
+app.use('/api/auth', authRoutes);
+
+// Business Routes (protected - requires authentication)
+app.use('/api/businesses', businessRoutes);
+
+// Engagement Routes (protected - requires authentication)
+app.use('/api/engagements', engagementRoutes);
+// Also mount at /api for the POST /businesses/:id/engagements route
+app.use('/api', engagementRoutes);
+
+// Team Management Routes (protected - requires authentication)
+app.use('/api/team', teamRoutes);
+
+// Report Routes (protected - requires authentication)
+app.use('/api/valuations', reportRoutes);
+
+// Working Capital Routes (protected - requires authentication)
+app.use('/api/valuations', workingCapitalRoutes);
+
+// Deal Analysis Routes (protected - requires authentication)
+app.use('/api/valuations', dealAnalysisRoutes);
+
+// VAC Routes (Value Acceleration Calculator)
+app.use('/api/vac', vacRoutes);
+
+// Document Routes (file upload and management)
+app.use('/api', documentRoutes);
+
+// Business Portal Routes (public - uses access token for auth)
+app.use('/api/business-portal', businessPortalRoutes);
+
+// Admin Dashboard Routes (protected - requires admin role)
+app.use('/api/admin', adminRoutes);
+
+// Protected Routes (require authentication)
+// To make a route protected, add the requireAuth middleware
+
+// Legacy Routes (for backward compatibility)
 // Create or get user session
 app.post('/api/users', async (req, res) => {
   try {
@@ -255,12 +331,6 @@ app.get('/api/users/:userId/valuations', async (req, res) => {
   }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Error handling middleware (must be last)
+app.use(notFound);
+app.use(errorHandler);

@@ -1,0 +1,300 @@
+1. Step 2 – Earnings Analysis (full logic)
+
+We already had the questions and high-level idea, but not the full mechanics. In Excel this block is on PART 1 rows 30–40.
+
+1.1 Inputs
+
+From the 7 questions:
+
+Top line revenue last year → Revenue
+
+Pre-tax profit last year → PreTaxProfit
+
+Amortization/depreciation last year → Dep
+
+Long-term interest expense last year → Interest
+
+Discretionary spending last year → Discretionary
+
+Owner salary above/below market → OwnerSalaryAdj (numeric adjustment)
+
+Rent above/below market → RentAdj (numeric adjustment)
+
+In the sheet, 6 & 7 flow into H35/H36 as adjustments.
+
+1.2 Baseline margins
+
+Confirming:
+
+Revenue margin: 1.00
+
+Pre-tax margin: 7.5%
+
+Dep: 1%
+
+Interest: 1%
+
+Discretionary: 2%
+
+Baseline values are:
+
+BaselinePreTax       = Revenue * 0.075
+BaselineDep          = Revenue * 0.01
+BaselineInterest     = Revenue * 0.01
+BaselineDiscretionary= Revenue * 0.02
+
+1.3 “From Financials” and EBITDA
+
+In the Excel formula (I38):
+
+=IF(
+   ISBLANK(H30),
+   G31+G32+G33+G34+H35+H36,
+   H31+H32+H33+H34+H35+H36
+)
+
+
+So in code:
+
+if RevenueFromFinancials is blank:
+    EBITDA = BaselinePreTax + BaselineDep + BaselineInterest + BaselineDiscretionary
+             + OwnerSalaryAdj + RentAdj
+else:
+    EBITDA = PreTaxProfit + Dep + Interest + Discretionary
+             + OwnerSalaryAdj + RentAdj
+
+1.4 EBITDA Margin
+
+Cell I39:
+
+=IF(ISBLANK(H30), I38/G30, I38/H30)
+
+
+In code:
+
+if RevenueFromFinancials is blank:
+    EbitdaMargin = EBITDA / BaselineRevenue
+else:
+    EbitdaMargin = EBITDA / RevenueFromFinancials
+
+1.5 Size Score (Company Size Score)
+
+Cell I40 uses a lookup into Data Page:
+
+=IF(
+   I38 < B5,  C5,
+   IF(I38 < B6, C6,
+     ...
+     IF(I38 < B13, C13, C14)
+   )
+)
+
+
+That’s the “Size of EBITDA → Score 0–30” table.
+
+Spec addition:
+
+Implement a piecewise function for size scoring that maps EBITDA to a score (0,1,3,5,10,12,20,25,30) using the breakpoints in the Data Page. This must be configurable via a table, not hard-coded if/else.
+
+2. Current & Forecasted P&L (Value Acceleration Cal)
+
+This block lives on PART 2 – Value Acceleration Cal in columns P–Z.
+
+2.1 Current P&L (“Current P&L” column)
+
+Cells Z9–Z12:
+
+Z9 = Current Revenue (from Step 2 / P&L)
+
+Z10 = COGS & Operating Expenses
+
+Z11 = Profit
+
+Z12 = Adj. EBITDA (link back to PART 1!I38)
+
+Margins (AA9–AA12):
+
+AA9 = 1
+AA10 = Z10 / Z9     // COGS% of revenue
+AA11 = Z11 / Z9     // Profit margin
+AA12 = Z12 / Z9     // EBITDA margin
+
+
+So Current P&L is essentially:
+
+RevenueCurrent        = Revenue
+COGSCurrent           = Revenue * COGS%
+ProfitCurrent         = Revenue - COGSCurrent
+AdjEbitdaCurrent      = EBITDA
+
+2.2 Forecasted P&L (rightmost “Forecasted P&L” panel)
+
+Cells P9–P12 & Q10/Q12:
+
+P9  = Z9         // same starting revenue
+Q9  = 1          // total = 100%
+
+Q10 = AA10       // COGS % from improved efficiency scenario
+P10 = P9 * Q10   // Forecast COGS
+
+P11 = P9 - P10   // Forecast profit
+Q11 = P11 / P9   // Forecast profit margin
+
+Q12 = AA12       // Forecast EBITDA margin
+P12 = P9 * Q12   // Forecast Adj. EBITDA
+
+
+So in code:
+
+ForecastRevenue      = CurrentRevenue          // unless user overrides
+ForecastCogsPct      = ImprovedCogsPct        // from efficiency lever
+ForecastCogs         = ForecastRevenue * ForecastCogsPct
+ForecastProfit       = ForecastRevenue - ForecastCogs
+ForecastProfitMargin = ForecastProfit / ForecastRevenue
+ForecastEbitdaPct    = ImprovedEbitdaMargin
+ForecastEbitda       = ForecastRevenue * ForecastEbitdaPct
+
+2.3 Forecasted Value & Growth
+
+Cells:
+
+W16 = FinalRiskAdjustedMultiple  // from multiple lever
+W16 * P12 = ForecastSalePrice
+W19 = W16/Z16 - 1                // Sale price growth %
+W20 = W16 - Z16                  // Sale price increase in value
+
+
+Spec:
+
+The app must calculate a Forecasted Sale Price using:
+
+Forecasted EBITDA (after size & efficiency improvements),
+
+Final multiple (after multiple/risk improvements),
+and present both absolute and percentage uplift vs current value.
+
+3. Wealth Gap Calculator – full 5-step logic
+
+Everything below is on PART 3 – Wealth Gap Calculator.
+
+3.1 Step 1 – Current Scenario
+
+Inputs:
+
+Dividends, wages, personal expenses covered, other passive income → F6–F9
+
+Total current annual income:
+
+F10 = SUM(F6:F9)
+
+
+Cash or liquid assets, non-mortgage debt → F14, F15
+
+Net available assets:
+
+F16 = F14 - F15
+
+
+Spec:
+
+Capture current income streams and net investable assets (liquid assets – non-mortgage debt).
+
+3.2 Step 2 – Exit Goals
+
+Inputs:
+
+Desired post-sale annual income (M6)
+
+Desired exit timeline in years (M7)
+
+These feed Step 3.
+
+3.3 Step 3 – Wealth Gap Calculation
+
+Key formulas on the right:
+
+M13 = M6 - F9       // Replacement income required
+M14 = 0.075         // Return on portfolio (default 7.5%)
+M15 = M13 / M14     // Required investment portfolio size
+M16 = M15 - (F14 + F15)  // Gap to fully fund portfolio (portfolio needed – current liquid/net assets)
+
+
+Spec:
+
+Compute how much investable wealth is required post-sale to generate the desired income at the assumed portfolio return, then subtract current liquid/net assets to find the wealth gap to be filled by the business sale.
+
+3.4 Step 4 – Business Sale Price Target
+
+This block calculates the required business sale price to fill that gap, grossed up for fees/taxes and adjusted for ownership % and growth.
+
+Key cells:
+
+T6  = OwnershipPercentage (default 1.0)
+T7  = HistoricalAnnualGrowthRate (default 3%)
+T8  = LongTermBusinessDebt (default 0)
+T9  = (T8 * T6) + M16      // Net proceeds required + debt payoff
+T10 = 0.10                 // Estimated professional fees & taxes
+T13 = T9 + (T9 * T10)      // Target net proceeds including fees/taxes
+T11 = (T13 / E24) / F30    // Required business sale price:
+                           // divide by profit/EBITDA margin (E24)
+                           // and by multiple (F30)
+
+
+So in code:
+
+NetProceedsNeeded      = WealthGap + (Ownership% * LongTermDebt)
+GrossedUpProceeds      = NetProceedsNeeded * (1 + FeeTaxRate)
+RequiredSalePrice      = GrossedUpProceeds / (TargetMargin * TargetMultiple)
+
+
+This is your Target Business Sale Price in the Wealth Gap module.
+
+3.5 Step 5 – Exit Planning (Years to Exit & Growth Path)
+
+Inputs (row 24):
+
+K24 = GrowthRate (manual default 5%)
+L24 = ProfitMargin (manual default 10%)
+M24 = Multiple (manual default 4)
+
+
+When VAC data is used, K25/L25 override from VAC:
+
+K25 = T7                       // growth from VAC
+L25 = 'PART 2'!W11             // profit margin from improved scenario
+
+
+The Years to Exit formula in N24:
+
+N24 = -1 * ( LN(L28/L33) / LN(1 / (IF(J20="Data from VAC Tool", K25+1, K24+1))) )
+
+
+Conceptually:
+
+L33 = current EBITDA (or profit)
+
+L28 = required EBITDA level that supports target sale price
+
+growth rate = either K25 (VAC-derived) or K24 (manual)
+
+So:
+
+YearsToExit =
+    - ln(TargetEBITDA / CurrentEBITDA) /
+      ln(1 / (1 + GrowthRate))
+
+
+Then the Goal Situation table (rows 28–31) and the year-by-year schedule (rows 32 onward) do:
+
+Year[0].Revenue = CurrentRevenue
+Year[n].Revenue = Year[n-1].Revenue * (1 + GrowthRate)
+
+Year[n].EBITDA  = Year[n].Revenue * TargetMargin
+Year[n].Value   = Year[n].EBITDA * TargetMultiple
+
+
+until n ≈ YearsToExit.
+
+Spec:
+
+The app must show an exit planning timeline: for each year, projected revenue, EBITDA and business value, and compute the approximate number of years needed to reach the target sale price given a chosen (or VAC-derived) growth rate and target margin/multiple.

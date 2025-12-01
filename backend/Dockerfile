@@ -29,17 +29,18 @@ COPY server.js ./
 COPY db.js ./
 COPY valuationEngine.js ./
 
-# Copy migrations, middleware, routes, and services folders
+# Copy migrations, middleware, routes, services, and templates folders
 COPY migrations ./migrations
 COPY middleware ./middleware
 COPY routes ./routes
 COPY services ./services
+COPY templates ./templates
 
 # Copy .env if it exists (optional for Docker builds)
 COPY .env* ./
 
-# Create directory for database
-RUN mkdir -p /app/data
+# Create directories for database and uploads
+RUN mkdir -p /app/data /app/uploads
 
 # Expose port
 EXPOSE 5000

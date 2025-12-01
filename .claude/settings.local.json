@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(dir:*)",
+      "Bash(ls:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker volume prune:*)",
+      "Bash(npm test)",
+      "Bash(npm install:*)",
+      "Bash(npm test:*)",
+      "Bash(npm --prefix backend test)",
+      "Bash(npm --prefix backend test -- dealAnalysisEngine.test.js)",
+      "Bash(findstr:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout 10 npm start)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker ps:*)",
+      "Bash(curl:*)",
+      "Bash(move 002_create_core_schema.js 008_create_vac_schema.js)",
+      "Bash(pip install:*)",
+      "Bash(cat:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm start --prefix \"D:\\manu\\backend\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZmI0NDUzZS0wMDRjLTQzZjktYTgyMi1lOWZmMmYzOTFkODUiLCJlbWFpbCI6ImFkdmlzb3JAdGVzdC5jb20iLCJvcmdhbml6YXRpb25JZCI6ImY4MWYwNzBkLTYyNzgtNDAxMC1iOTljLTgyNGZmMzM4MWI4YSIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3NjQwOTc0OTgsImV4cCI6MTc2NDE4Mzg5OH0.K9Gpf6F3XcpjpMNSAPZGIS-0PQNJTZlLMpOQrZCRXt4\")",
+      "Bash(node:*)",
+      "Bash(npm --prefix D:manubackend test)",
+      "Bash(git -C D:\\manu status:*)",
+      "Bash(git -C D:manu log -3 --oneline)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

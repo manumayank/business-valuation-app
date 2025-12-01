@@ -1,0 +1,332 @@
+/* Export Report Component Styles */
+
+.export-report {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+  padding: 30px;
+  border-radius: 12px;
+  margin: 30px 0;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.export-header {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.export-header h3 {
+  color: #0066cc;
+  font-size: 22px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.export-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Template Selector */
+.template-selector {
+  margin-bottom: 25px;
+}
+
+.template-selector label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 15px;
+}
+
+.template-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.option input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  accent-color: #0066cc;
+}
+
+.option label {
+  display: flex;
+  margin: 0;
+  padding: 12px;
+  margin-left: 8px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  background: white;
+  transition: all 0.3s ease;
+  flex: 1;
+  flex-direction: column;
+}
+
+.option-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.option-content strong {
+  color: #0066cc;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.option-content small {
+  color: #999;
+  font-size: 12px;
+  font-weight: normal;
+  margin-bottom: 4px;
+}
+
+.option-description {
+  font-size: 11px;
+  color: #666;
+  font-weight: normal;
+  margin-top: 2px;
+}
+
+.option input[type="radio"]:checked + label,
+.option input[type="radio"]:checked ~ label {
+  border-color: #0066cc;
+  background: #f0f8ff;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.option input[type="radio"]:disabled + label {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Export Button */
+.export-button {
+  background: linear-gradient(135deg, #0066cc 0%, #004999 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+}
+
+.export-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+}
+
+.export-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.export-button:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.export-button.loading {
+  background: linear-gradient(135deg, #004999 0%, #003366 100%);
+}
+
+.button-icon {
+  font-size: 18px;
+}
+
+/* Spinner Animation */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Messages */
+.error-message {
+  background: #ffe0e0;
+  color: #c81e1e;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #c81e1e;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.error-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: #c81e1e;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  margin-left: auto;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.error-close:hover {
+  opacity: 1;
+}
+
+.success-message {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #2e7d32;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+}
+
+.success-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Info Text */
+.export-info {
+  margin-top: 15px;
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .export-report {
+    padding: 20px;
+    margin: 20px -15px;
+    border-radius: 0;
+  }
+
+  .export-header h3 {
+    font-size: 18px;
+  }
+
+  .template-options {
+    grid-template-columns: 1fr;
+  }
+
+  .export-button {
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+
+  .option label {
+    padding: 10px;
+    margin-left: 6px;
+  }
+
+  .option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .export-report {
+    padding: 16px;
+  }
+
+  .export-header h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .export-subtitle {
+    font-size: 13px;
+  }
+
+  .template-selector label {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .export-button {
+    padding: 11px 16px;
+    font-size: 14px;
+    gap: 8px;
+  }
+
+  .button-icon {
+    font-size: 16px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+  }
+
+  .option-content strong {
+    font-size: 13px;
+  }
+
+  .option-content small {
+    font-size: 11px;
+  }
+
+  .option-description {
+    font-size: 10px;
+  }
+}

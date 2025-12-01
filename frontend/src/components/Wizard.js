@@ -160,11 +160,12 @@ const Wizard = ({ userId, onComplete }) => {
                 onChange={handleInputChange}
                 className={errors.industry ? 'error' : ''}
               >
-                <option value="tech">Technology</option>
+                <option value="tech">Technology / Software</option>
                 <option value="retail">Retail</option>
                 <option value="services">Services</option>
                 <option value="manufacturing">Manufacturing</option>
-                <option value="default">Other</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="finance">Finance / Insurance</option>
               </select>
               {errors.industry && <span className="error-message">{errors.industry}</span>}
             </div>

@@ -1,0 +1,445 @@
+================================================================================
+                    SYSTEM ARCHITECTURE OVERVIEW
+================================================================================
+
+HIGH-LEVEL SYSTEM ARCHITECTURE
+─────────────────────────────────────────────────────────────────────────────
+
+    ┌─────────────────────────────────────────────────────────────┐
+    │                    FRONTEND (React)                          │
+    │  ┌─────────────┬──────────────┬──────────────┬─────────────┐ │
+    │  │   Pages     │  Components  │   Services   │   Context   │ │
+    │  ├─────────────┼──────────────┼──────────────┼─────────────┤ │
+    │  │ • Login     │ • Wizard     │ • API Client │ • AuthCtx   │ │
+    │  │ • Register  │ • Dashboard  │ • Storage    │ • ValCtx    │ │
+    │  │ • Valuation │ • Reports    │ • Auth Utils │ • ThemeCtx  │ │
+    │  │ • Analytics │ • Charts     │              │             │ │
+    │  │ • Admin     │ • Risk View  │              │             │ │
+    │  └─────────────┴──────────────┴──────────────┴─────────────┘ │
+    │  ┌──────────────────────────────────────────────────────────┐ │
+    │  │            Redux / Context State Management              │ │
+    │  └──────────────────────────────────────────────────────────┘ │
+    └──────────────────────┬──────────────────────────────────────┘
+                           │ HTTP/REST
+                           │ JWT Tokens
+                           ▼
+    ┌──────────────────────────────────────────────────────────────┐
+    │                   API GATEWAY (Express)                       │
+    │  ┌──────────────────────────────────────────────────────────┐ │
+    │  │  Middleware: Auth, Validation, Error Handling, Logging   │ │
+    │  └──────────────────────────────────────────────────────────┘ │
+    │  ┌─────────────┬──────────────┬──────────────┬─────────────┐  │
+    │  │    Auth     │ Valuations   │   Reports    │  Analytics  │  │
+    │  │   Routes    │   Routes     │    Routes    │   Routes    │  │
+    │  ├─────────────┼──────────────┼──────────────┼─────────────┤  │
+    │  │ • Register  │ • Create     │ • Generate   │ • Trends    │  │
+    │  │ • Login     │ • Update     │ • Share      │ • Export    │  │
+    │  │ • Refresh   │ • Delete     │ • Download   │ • Filters   │  │
+    │  └─────────────┴──────────────┴──────────────┴─────────────┘  │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │              Business Logic Services                        │ │
+    │  │  ┌─────────────────┬──────────────┬──────────────────┐    │ │
+    │  │  │ Valuation       │ PDF          │ Risk             │    │ │
+    │  │  │ Engine          │ Generator    │ Analyzer         │    │ │
+    │  │  │ • 3 methods     │ • Puppeteer  │ • 5 categories   │    │ │
+    │  │  │ • Risk scoring  │ • Templates  │ • Grade assign   │    │ │
+    │  │  │ • Adjustments   │ • Branding   │ • Scoring logic  │    │ │
+    │  │  └─────────────────┴──────────────┴──────────────────┘    │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    │  ┌────────────────────────────────────────────────────────────┐ │
+    │  │            Supporting Services                              │ │
+    │  │  • Auth Service (JWT, bcrypt)                              │ │
+    │  │  • Email Service (optional notifications)                  │ │
+    │  │  • Logging Service (audit trail)                           │ │
+    │  │  • Cache Service (Redis - optional)                        │ │
+    │  └────────────────────────────────────────────────────────────┘ │
+    └──────────────────────┬──────────────────────────────────────────┘
+                           │ SQL Queries
+                           │ CRUD Operations
+                           ▼
+    ┌──────────────────────────────────────────────────────────────┐
+    │                   DATABASE LAYER                              │
+    │  ┌──────────────────────────────────────────────────────────┐ │
+    │  │  SQLite (Development) → PostgreSQL (Production)           │ │
+    │  └──────────────────────────────────────────────────────────┘ │
+    │  ┌──────────────────────────────────────────────────────────┐ │
+    │  │                    Core Tables                            │ │
+    │  │  users  ──────────┬──→ organizations                      │ │
+    │  │  audit_logs       │    └──→ org_members                   │ │
+    │  │  user_preferences │        └──→ subscriptions             │ │
+    │  │                   │                                        │ │
+    │  │  valuations ──────┬──→ working_capital_data               │ │
+    │  │  completed_       │    ├──→ offer_analysis                │ │
+    │  │  improvements     │    ├──→ risk_assessments              │ │
+    │  │  report_templates │    └──→ usage_logs                    │ │
+    │  └──────────────────────────────────────────────────────────┘ │
+    └──────────────────────────────────────────────────────────────┘
+
+
+USER FLOW & DATA JOURNEY
+─────────────────────────────────────────────────────────────────────────────
+
+1. REGISTRATION & AUTHENTICATION
+   ┌─────────────────┐
+   │ User Registers  │
+   └────────┬────────┘
+            │ Email, Password, Company
+            ▼
+   ┌─────────────────────────────┐
+   │ Backend: Hash Password      │
+   │ Create User + Organization  │
+   │ Generate JWT Token          │
+   └────────┬────────────────────┘
+            │ Return: Token + User
+            ▼
+   ┌─────────────────────────────┐
+   │ Frontend: Store Token       │
+   │ Redirect to Dashboard       │
+   └─────────────────────────────┘
+
+2. CREATING A VALUATION
+   ┌──────────────────────────┐
+   │ User Fills Wizard        │ Step 1-5: Company, Financial, Operations, etc.
+   │ (5 Steps)                │
+   └────────┬─────────────────┘
+            │ Input Data
+            ▼
+   ┌──────────────────────────────────┐
+   │ Frontend: Validate Input         │ Real-time validation
+   │ POST /api/valuations             │
+   └────────┬─────────────────────────┘
+            │ User Data
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Backend: Check Authentication            │
+   │ Save Input to Database                   │
+   │ Call Valuation Engine                    │
+   └────────┬─────────────────────────────────┘
+            │ 3 Methods: EBITDA, Revenue, DCF
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Calculate Valuation                      │
+   │ • Base valuation (method 1)              │
+   │ • Secondary methods (2, 3)               │
+   │ • Apply adjustments                      │
+   │ • Generate drivers & gaps                │
+   │ • Create suggestions                     │
+   │ • Score risk                             │
+   └────────┬─────────────────────────────────┘
+            │ Result Object
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Save Result to Database                  │
+   │ Return JSON Result + ID                  │
+   └────────┬─────────────────────────────────┘
+            │ Valuation ID + Results
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Frontend: Display Dashboard              │
+   │ • Headline valuation                     │
+   │ • Value drivers                          │
+   │ • Performance gaps                       │
+   │ • Risk score & grade                     │
+   │ • Improvement suggestions                │
+   └──────────────────────────────────────────┘
+
+3. GENERATING A REPORT
+   ┌──────────────────────────┐
+   │ User Clicks "Export PDF" │ Select version: Lite/Std/Premium
+   └────────┬─────────────────┘
+            │ Valuation ID + Version
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Frontend: POST /api/valuations/:id/pdf   │
+   │ Include: Version, Branding Prefs         │
+   └────────┬─────────────────────────────────┘
+            │ Request
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Backend: PDF Generator Service           │
+   │ 1. Load Template (Lite/Std/Premium)      │
+   │ 2. Fetch Valuation Data                  │
+   │ 3. Render Charts (Chart.js)              │
+   │ 4. Build HTML from Template              │
+   │ 5. Convert to PDF (Puppeteer)            │
+   │ 6. Add Branding/Logo                     │
+   │ 7. Return PDF File                       │
+   └────────┬─────────────────────────────────┘
+            │ PDF Binary
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Frontend: Download File                  │
+   │ Save as: valuation_YYYYMMDD.pdf          │
+   └──────────────────────────────────────────┘
+
+4. SHARING A REPORT
+   ┌──────────────────────────┐
+   │ User Clicks "Share"      │
+   └────────┬─────────────────┘
+            │
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Backend: Generate Token                  │
+   │ • Random 32-byte string                  │
+   │ • Save to database                       │
+   │ • Set expiration (7 days)                │
+   │ • Return share URL                       │
+   └────────┬─────────────────────────────────┘
+            │ Share URL
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Frontend: Display Share Link             │
+   │ • Copy to clipboard                      │
+   │ • Email option                           │
+   │ • Expiration countdown                   │
+   └──────────────────────────────────────────┘
+            │
+            │ Share URL to: stakeholder@company.com
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Stakeholder Opens Link                   │
+   │ GET /api/reports/[TOKEN]                 │
+   └────────┬─────────────────────────────────┘
+            │
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Backend: Check Token                     │
+   │ • Valid? → Return dashboard              │
+   │ • Expired? → Return 404                  │
+   └────────┬─────────────────────────────────┘
+            │
+            ▼
+   ┌──────────────────────────────────────────┐
+   │ Frontend: Display Public Dashboard       │
+   │ (Read-only version)                      │
+   └──────────────────────────────────────────┘
+
+
+API ROUTE STRUCTURE
+─────────────────────────────────────────────────────────────────────────────
+
+/api
+├── /auth
+│   ├── POST   /register          → Create account
+│   ├── POST   /login             → Get JWT token
+│   ├── POST   /refresh           → Refresh token
+│   ├── POST   /logout            → Clear session
+│   └── POST   /reset-password    → Password reset
+│
+├── /valuations
+│   ├── GET    /                  → List user's valuations
+│   ├── POST   /                  → Create new valuation
+│   ├── GET    /:id               → Get valuation details
+│   ├── PUT    /:id               → Update & recalculate
+│   ├── DELETE /:id               → Delete valuation
+│   │
+│   ├── /working-capital
+│   │   ├── POST   /:id           → Add working capital
+│   │   ├── PUT    /:id           → Update working capital
+│   │   └── GET    /:id           → Get working capital
+│   │
+│   ├── /offers
+│   │   ├── GET    /:id           → List offers for valuation
+│   │   ├── POST   /:id           → Create new offer
+│   │   ├── PUT    /:id/:offerId  → Update offer
+│   │   └── DELETE /:id/:offerId  → Delete offer
+│   │
+│   └── /improvements
+│       └── POST   /:id/:key      → Mark improvement done
+│
+├── /reports
+│   ├── GET    /                  → List reports
+│   ├── POST   /:id/pdf           → Generate PDF report
+│   ├── POST   /:id/share         → Create share token
+│   └── GET    /public/:token     → View shared report
+│
+├── /analytics
+│   ├── GET    /dashboard         → Dashboard metrics
+│   ├── GET    /trends            → Historical trends
+│   ├── GET    /export            → Export data (CSV/Excel)
+│   └── GET    /comparison        → Industry comparison
+│
+├── /admin
+│   ├── GET    /users             → List all users
+│   ├── PUT    /users/:id         → Update user
+│   ├── DELETE /users/:id         → Delete user
+│   ├── GET    /organizations     → List organizations
+│   ├── GET    /usage             → Usage statistics
+│   └── GET    /subscriptions     → Subscription status
+│
+└── /health                        → API health check
+
+
+DATA MODEL RELATIONSHIPS
+─────────────────────────────────────────────────────────────────────────────
+
+┌──────────────┐
+│    users     │ ──┐
+├──────────────┤   │
+│ id (PK)      │   │
+│ email        │   │  ┌──────────────┐
+│ password_h.  │   └──┤organizations │
+│ full_name    │      ├──────────────┤
+│ company      │      │ id (PK)      │
+│ created_at   │      │ name         │
+└──────────────┘      │ owner_id (FK)│
+      △               │ tier         │
+      │ 1             └──────────────┘
+      │                     △
+      └─ many              │ 1
+                           │ many
+                      ┌────────────────────┐
+                      │org_members         │
+                      ├────────────────────┤
+                      │ org_id (FK)        │
+                      │ user_id (FK)       │
+                      │ role               │
+                      └────────────────────┘
+
+┌──────────────┐
+│ valuations   │ ──┬─ has many ──→ working_capital_data
+├──────────────┤  ├─ has many ──→ offer_analysis
+│ id (PK)      │  ├─ has many ──→ risk_assessments
+│ user_id (FK) │  └─ has many ──→ completed_improvements
+│ org_id (FK)  │
+│ input_data   │     ┌──────────────────────┐
+│ result_data  │────→│ completed_           │
+│ shared_token │     │ improvements         │
+│ status       │     ├──────────────────────┤
+│ created_at   │     │ valuation_id (FK)    │
+└──────────────┘     │ improvement_key      │
+                     │ completed_at         │
+                     └──────────────────────┘
+
+┌───────────────┐
+│ audit_logs    │
+├───────────────┤
+│ user_id (FK)  │
+│ org_id (FK)   │
+│ action        │
+│ entity_type   │
+│ entity_id     │
+│ timestamp     │
+└───────────────┘
+
+
+DEPLOYMENT ARCHITECTURE
+─────────────────────────────────────────────────────────────────────────────
+
+DEVELOPMENT
+────────────
+   Browser (localhost:3000)
+        ↓
+   React Dev Server
+        ↓
+   API Requests (localhost:5000)
+        ↓
+   Express Server
+        ↓
+   SQLite Database
+
+PRODUCTION
+──────────────
+   CDN / CloudFlare
+        ↓
+   React Build (Static)
+        ↓
+   Load Balancer
+        ↓
+   ┌─────────────┬──────────────┬──────────────┐
+   │  Express    │  Express     │  Express     │
+   │  Instance 1 │  Instance 2  │  Instance 3  │
+   └─────────────┴──────────────┴──────────────┘
+        │           │                │
+        └─────────────────────────────┘
+              ↓
+        Connection Pool
+              ↓
+        PostgreSQL (Master)
+              ↓
+        Backup (Read Replica)
+              ↓
+        S3 (Backups)
+
+DOCKER COMPOSE (Local)
+──────────────────────
+   frontend (React)
+        ↓ port 3000
+   backend (Express) ←── depends_on
+        ↓ port 5000
+   postgres (Database)
+        ↓ port 5432
+   redis (Cache) [optional]
+        ↓ port 6379
+
+
+SECURITY LAYERS
+─────────────────────────────────────────────────────────────────────────────
+
+Frontend
+  • HTTPS only
+  • JWT in Authorization header
+  • CSRF protection (optional)
+  • XSS prevention (React auto-escapes)
+  • Input validation
+
+Backend
+  • JWT verification middleware
+  • Role-based access control
+  • SQL injection prevention (parameterized queries)
+  • Input validation & sanitization
+  • Rate limiting
+  • CORS configuration
+  • Helmet.js security headers
+  • Password hashing (bcrypt)
+  • Audit logging
+
+Database
+  • Foreign key constraints
+  • Row-level security (PostgreSQL)
+  • Encrypted passwords
+  • Automatic backups
+  • Access control lists
+
+Infrastructure
+  • TLS/SSL certificates
+  • Firewall rules
+  • DDoS protection
+  • WAF (Web Application Firewall)
+
+
+PERFORMANCE OPTIMIZATION STRATEGY
+─────────────────────────────────────────────────────────────────────────────
+
+Frontend
+  ✓ Code splitting (lazy load components)
+  ✓ Minification & bundling
+  ✓ Image optimization
+  ✓ Caching strategy (service workers)
+  ✓ CDN for static assets
+
+Backend
+  ✓ Connection pooling
+  ✓ Query optimization
+  ✓ Indexes on frequently queried columns
+  ✓ Redis caching (session, benchmarks)
+  ✓ Async operations (background jobs)
+  ✓ Pagination for large datasets
+
+Database
+  ✓ Proper indexing
+  ✓ Query optimization
+  ✓ Connection pooling
+  ✓ Read replicas (for scaling reads)
+  ✓ Partitioning (large tables)
+
+Monitoring
+  ✓ Application performance monitoring (APM)
+  ✓ Error tracking (Sentry optional)
+  ✓ Logging (centralized logs)
+  ✓ Alerts for performance degradation
+
+
+================================================================================
+End of Architecture Diagram
+================================================================================

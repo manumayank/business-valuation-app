@@ -1,0 +1,1323 @@
+/* Deal Analysis Styling */
+
+/* ============================================
+   FORM STYLING
+   ============================================ */
+
+.deal-form-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.deal-form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.deal-form-header h2 {
+  font-size: 1.8rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.deal-form-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Progress Bar */
+.deal-progress-container {
+  margin-bottom: 2rem;
+}
+
+.deal-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.deal-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  transition: width 0.3s ease;
+}
+
+.deal-progress-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: right;
+}
+
+/* Error Message */
+.deal-error-message {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.error-icon {
+  font-size: 1.2rem;
+}
+
+/* Step Content */
+.deal-step-content {
+  margin-bottom: 2rem;
+}
+
+.deal-step-title {
+  font-size: 1.3rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.deal-step-description {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Fields */
+.deal-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.deal-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.deal-form-label {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.deal-form-input {
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  font-family: inherit;
+}
+
+.deal-form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+}
+
+.deal-form-input.error {
+  border-color: #ef4444;
+}
+
+.deal-form-input:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.deal-form-hint {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.deal-form-error {
+  font-size: 0.85rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+/* Navigation */
+.deal-form-navigation {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.deal-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.deal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.deal-btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+  min-width: 140px;
+}
+
+.deal-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.deal-btn-secondary {
+  background: #e5e7eb;
+  color: #1f2937;
+  min-width: 140px;
+}
+
+.deal-btn-secondary:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.deal-btn-cancel {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  min-width: 140px;
+}
+
+.deal-btn-cancel:hover:not(:disabled) {
+  background: #f9fafb;
+}
+
+.deal-btn-submit {
+  width: 100%;
+}
+
+/* ============================================
+   PANELS & DISPLAY STYLING
+   ============================================ */
+
+.deal-empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #9ca3af;
+}
+
+.deal-error-state {
+  text-align: center;
+  padding: 2rem;
+  color: #ef4444;
+  background: #fee2e2;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+.deal-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.deal-section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1.5rem 0;
+}
+
+/* ============================================
+   METRICS PANEL
+   ============================================ */
+
+.deal-metrics-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.deal-metrics-section {
+  background: linear-gradient(135deg, #f8fafc, #f3f4f6);
+  border-radius: 10px;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+/* Price Assessment */
+.deal-price-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.price-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.price-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.price-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.deal-fair-range {
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #3b82f6;
+}
+
+.deal-fair-range p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.assessment-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.assessment-badge.fair {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.assessment-badge.underpriced {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.assessment-badge.overpriced {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Multiples Grid */
+.deal-multiples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.multiple-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.multiple-metric {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.multiple-values {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.multiple-offered, .multiple-industry {
+  flex: 1;
+}
+
+.multiple-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.multiple-number {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.multiple-assessment {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ROI Grid */
+.deal-roi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.roi-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.roi-metric {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.roi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.roi-assessment, .roi-note {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Metrics Summary */
+.deal-metrics-summary {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.deal-metrics-summary h4 {
+  margin: 0 0 1rem 0;
+  color: #166534;
+}
+
+.deal-metrics-summary ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #166534;
+}
+
+.deal-metrics-summary li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+/* ============================================
+   SCORECARD STYLING
+   ============================================ */
+
+.deal-scorecard-container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.deal-recommendation-box {
+  margin-bottom: 2rem;
+}
+
+.deal-recommendation-badge {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 10px;
+  color: white;
+}
+
+.recommendation-icon {
+  font-size: 2.5rem;
+}
+
+.recommendation-text {
+  flex: 1;
+}
+
+.recommendation-level {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.recommendation-score {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Score Items */
+.deal-scores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.score-item {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.score-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.score-bar-container {
+  margin-bottom: 0.75rem;
+}
+
+.score-bar-background {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.score-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: right;
+}
+
+/* Rationale & Risk */
+.deal-rationale {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.deal-rationale h5,
+.deal-risk-grade-box h5 {
+  margin: 0 0 0.75rem 0;
+  color: #166534;
+}
+
+.deal-rationale p {
+  margin: 0;
+  color: #166534;
+  line-height: 1.6;
+}
+
+.deal-risk-grade-box {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.risk-grade-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.risk-grade-badge {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.risk-grade-text {
+  color: #374151;
+  line-height: 1.5;
+}
+
+/* Decision Summary */
+.deal-decision-summary {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.deal-decision-summary h5 {
+  margin: 0 0 1rem 0;
+  color: #78350f;
+}
+
+.decision-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.decision-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.decision-item.positive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.decision-item.negative {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.decision-icon {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* ============================================
+   SYNERGY ANALYSIS
+   ============================================ */
+
+.synergy-analysis-container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.synergy-total-card {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border: 1px solid #93c5fd;
+  border-radius: 10px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.synergy-total-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 0.5rem;
+}
+
+.synergy-total-label {
+  font-size: 1rem;
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+}
+
+.synergy-as-percentage {
+  font-size: 0.9rem;
+  color: #1e3a8a;
+  opacity: 0.9;
+}
+
+/* Synergy Categories */
+.synergy-category {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.synergy-category-title {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.synergy-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.synergy-item {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+}
+
+.synergy-item-name {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.synergy-item-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.synergy-subtotal {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #3b82f6;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.synergy-subtotal-label {
+  color: #1e40af;
+}
+
+.synergy-subtotal-value {
+  color: #1e40af;
+}
+
+/* Synergy Summary */
+.synergy-summary {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.synergy-summary h4 {
+  margin: 0 0 1rem 0;
+  color: #166534;
+}
+
+.synergy-summary ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #166534;
+}
+
+.synergy-summary li {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+/* ============================================
+   RISK ASSESSMENT
+   ============================================ */
+
+.risk-assessment-container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Risk Score Display */
+.risk-score-display {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  background: #f9fafb;
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+.risk-score-circle {
+  width: 140px;
+  height: 140px;
+  border: 4px solid;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.risk-score-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.risk-score-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.risk-grade-info {
+  flex: 1;
+}
+
+.risk-grade-letter {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.risk-assessment-text {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* Risk Factors */
+.risk-factors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.risk-factor-item {
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.risk-factor-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.risk-factor-score {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.risk-factor-bar {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.risk-factor-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Mitigation Section */
+.risk-mitigation-section {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.risk-mitigation-section h4 {
+  margin: 0 0 1rem 0;
+  color: #78350f;
+}
+
+.mitigation-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #92400e;
+}
+
+.mitigation-list li {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Risk Grade Legend */
+.risk-grade-legend {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.risk-grade-legend h5 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+}
+
+.legend-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.legend-color {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   NEGOTIATION & SCENARIOS
+   ============================================ */
+
+.negotiation-guidance-container,
+.deal-scenarios-container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.negotiation-section,
+.scenario-section {
+  margin-bottom: 2rem;
+}
+
+.negotiation-section h4,
+.scenario-section h4 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+/* Price Range Visual */
+.price-range-visual {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.price-range-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.price-range-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.price-range-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.price-range-note {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.negotiation-margin-info {
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.negotiation-margin-info p {
+  margin: 0.5rem 0;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.margin-note {
+  font-weight: normal !important;
+  font-size: 0.85rem !important;
+}
+
+/* Leverage Points */
+.leverage-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.leverage-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.leverage-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.leverage-text {
+  color: #166534;
+  font-size: 0.9rem;
+}
+
+/* Negotiation Tips & Structure */
+.negotiation-tips,
+.structure-recommendations,
+.timeline-recommendations {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #374151;
+}
+
+.negotiation-tips li,
+.structure-recommendations li,
+.timeline-recommendations li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Scenario Tabs */
+.scenario-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.scenario-tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.scenario-tab:hover {
+  color: #1f2937;
+}
+
+.scenario-tab.active {
+  color: #1f2937;
+}
+
+.scenario-icon {
+  font-size: 1.2rem;
+}
+
+.scenario-name {
+  min-width: 100px;
+}
+
+/* Scenario Content */
+.scenario-description {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #166534;
+}
+
+.scenario-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.scenario-metric {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.scenario-recommendation {
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.scenario-recommendation h4 {
+  margin: 0 0 0.75rem 0;
+  color: #1e40af;
+}
+
+.scenario-recommendation p {
+  margin: 0;
+  color: #1e3a8a;
+  line-height: 1.6;
+}
+
+/* Comparison Table */
+.scenario-comparison {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.comparison-table th {
+  background: #f3f4f6;
+  color: #1f2937;
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #d1d5db;
+}
+
+.comparison-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.comparison-table tr:hover {
+  background: #f9fafb;
+}
+
+/* Scenario Actions */
+.scenario-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Navigation Buttons */
+.deal-analysis-nav-buttons {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f3f4f6, #ffffff);
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.deal-analysis-nav-buttons h4 {
+  font-size: 1.1rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.nav-button-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.deal-nav-btn {
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  color: #1f2937;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.deal-nav-btn:hover {
+  background: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.deal-nav-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .deal-form-container {
+    padding: 1rem;
+  }
+
+  .deal-price-comparison,
+  .deal-multiples-grid,
+  .deal-roi-grid,
+  .risk-factors-grid,
+  .price-range-visual,
+  .deal-scores-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deal-form-navigation {
+    flex-direction: column;
+  }
+
+  .deal-btn {
+    width: 100%;
+  }
+
+  .risk-score-display {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .legend-items {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-tabs {
+    justify-content: flex-start;
+  }
+
+  .comparison-table {
+    font-size: 0.8rem;
+  }
+
+  .nav-button-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .deal-nav-btn {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .deal-form-container {
+    padding: 0.75rem;
+  }
+
+  .deal-form-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .synergy-total-amount {
+    font-size: 1.8rem;
+  }
+
+  .risk-score-circle {
+    width: 100px;
+    height: 100px;
+  }
+
+  .risk-score-value {
+    font-size: 2rem;
+  }
+
+  .deal-recommendation-badge {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .nav-button-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deal-nav-btn {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}

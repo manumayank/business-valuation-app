@@ -1,0 +1,249 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                   COMPLETE TESTING CHECKLIST                                  ║
+║                         Follow These Steps                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: START BACKEND                                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+Terminal 1:
+  cd backend
+  npm install          (first time only)
+  npm start
+
+  ✓ WAIT FOR: "🚀 Server running on http://localhost:5000"
+  ✓ SHOULD SEE 5 MIGRATION MESSAGES:
+    ✓ 001_expand_users_table
+    ✓ 002_create_organizations_table
+    ✓ 003_create_organization_members_table
+    ✓ 004_expand_valuations_table
+    ✓ 005_create_audit_logs_and_preferences
+
+  ✅ BACKEND READY WHEN: Server is running and migrations completed
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: START FRONTEND                                                       │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+Terminal 2:
+  cd frontend
+  npm install          (first time only)
+  npm start
+
+  ✓ WAIT FOR: "Compiled successfully!"
+  ✓ BROWSER SHOULD OPEN TO: http://localhost:3000
+  ✓ YOU SHOULD SEE: Login page with email/password fields
+
+  ✅ FRONTEND READY WHEN: Browser shows login page
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: TEST REGISTRATION                                                    │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+In Browser at http://localhost:3000:
+
+  ☐ Click "Create one" link
+  ☐ Fill Registration Form:
+    Full Name:  Test User
+    Email:      test@example.com
+    Company:    Acme Corp
+    Password:   TestPass123!
+    Confirm:    TestPass123!
+    ☐ Check "I agree to Terms..."
+
+  ☐ Click "Create Account" button
+  ☐ WAIT FOR: Page to redirect
+  ☐ YOU SHOULD SEE: Dashboard with "Welcome, Test User"
+
+  BACKEND CHECK (Terminal 1):
+    Look for: "POST /api/auth/register 201"
+
+  DATABASE CHECK (in new terminal):
+    sqlite3 backend/valuation.db
+    SELECT email FROM users;
+    Should show: test@example.com
+    .quit
+
+  ✅ REGISTRATION OK WHEN: Redirects to dashboard with user name
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 4: CHECK LOCALSTORAGE                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+In Browser:
+
+  ☐ Press F12 (Open Developer Tools)
+  ☐ Go to "Application" tab
+  ☐ Click "Local Storage" on left
+  ☐ Click "http://localhost:3000"
+
+  YOU SHOULD SEE 3 ITEMS:
+    ☐ token          (long string starting with eyJ...)
+    ☐ refreshToken   (long string starting with eyJ...)
+    ☐ user           (JSON object with your user data)
+
+  ✅ LOCALSTORAGE OK WHEN: All 3 items present
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 5: TEST LOGOUT                                                          │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+In Browser:
+
+  ☐ Click "Sign Out" button (top right)
+  ☐ WAIT FOR: Page to redirect
+  ☐ YOU SHOULD SEE: Login page again
+
+  LOCALSTORAGE CHECK:
+    ☐ Press F12 (still in DevTools)
+    ☐ Go to Local Storage > http://localhost:3000
+    ☐ Should be EMPTY (no token, refreshToken, or user)
+
+  ✅ LOGOUT OK WHEN: Redirected to login and localStorage cleared
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 6: TEST LOGIN                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+In Browser at http://localhost:3000/login:
+
+  ☐ Fill Login Form:
+    Email:    test@example.com
+    Password: TestPass123!
+
+  ☐ Click "Sign In" button
+  ☐ WAIT FOR: Page to redirect
+  ☐ YOU SHOULD SEE: Dashboard with "Welcome, Test User"
+
+  LOCALSTORAGE CHECK:
+    ☐ Tokens should be back in localStorage
+    ☐ Should see token, refreshToken, and user again
+
+  BACKEND CHECK (Terminal 1):
+    Look for: "POST /api/auth/login 200"
+
+  ✅ LOGIN OK WHEN: Redirected to dashboard with tokens
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 7: TEST PROTECTED ROUTES                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+In Browser:
+
+  LOGGED IN TEST:
+    ☐ You're on dashboard at http://localhost:3000/
+    ☐ Open new tab and go to http://localhost:3000/
+    ☐ Should stay on dashboard (not redirect to login)
+    ☐ YOU SHOULD SEE: Wizard form
+
+  LOGGED OUT TEST:
+    ☐ Click "Sign Out"
+    ☐ Open new tab and go to http://localhost:3000/
+    ☐ Should REDIRECT to http://localhost:3000/login
+    ☐ YOU SHOULD SEE: Login page
+
+  ✅ PROTECTED ROUTES OK WHEN: Both scenarios work correctly
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 8: TEST VALIDATION                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+Go to http://localhost:3000/register (create new account if needed):
+
+  EMAIL VALIDATION:
+    ☐ Type: "notanemail"
+    ☐ Leave the field
+    ☐ YOU SHOULD SEE: Red error "Please enter a valid email address"
+
+  WEAK PASSWORD:
+    ☐ Type password: "weak"
+    ☐ YOU SHOULD SEE: Red password strength bar (Very Weak)
+
+  PASSWORD MISMATCH:
+    ☐ Password:  TestPass123!
+    ☐ Confirm:   DifferentPass456!
+    ☐ YOU SHOULD SEE: Red error "Passwords do not match"
+
+  MISSING TERMS:
+    ☐ Fill form correctly
+    ☐ DON'T check "I agree..."
+    ☐ Click "Create Account"
+    ☐ YOU SHOULD SEE: Red error below checkbox
+
+  ✅ VALIDATION OK WHEN: All error messages appear
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ STEP 9: TEST COMPLETE FLOW                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+Full Registration → Valuation → Dashboard Flow:
+
+  ☐ Click "Sign Out"
+  ☐ Go to http://localhost:3000/register
+  ☐ Register NEW user:
+    Name:  John Doe
+    Email: john@example.com
+    Pass:  JohnPass123!
+
+  ☐ After registration, fill Wizard:
+    Company Name: Test Company
+    Industry:     Tech
+    Revenue:      1000000
+    EBITDA:       200000
+    (complete rest of form)
+
+  ☐ Click "Submit"
+  ☐ WAIT FOR: Results to appear
+  ☐ YOU SHOULD SEE: Dashboard with valuation amount
+
+  ✅ COMPLETE FLOW OK WHEN: Can register, valuate, and see results
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ FINAL CHECKLIST                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+✓ Backend starts with all 5 migrations
+✓ Frontend loads to login page
+✓ Can register new user
+✓ User appears in database
+✓ Tokens saved in localStorage
+✓ Can login with credentials
+✓ Welcome message shows user name
+✓ Can logout successfully
+✓ LocalStorage cleared after logout
+✓ Protected routes redirect when logged out
+✓ Can access dashboard when logged in
+✓ Validation works (email, password, terms)
+✓ Can create valuation and see results
+✓ No error messages in browser console
+✓ No error messages in backend logs
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                      IF ALL CHECKED: TESTS PASSED! ✅                        ║
+║                                                                               ║
+║              Ready for next phase: Valuation Engine Enhancement               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+TROUBLESHOOTING QUICK FIXES:
+
+Issue: Port 5000 already in use
+  → Kill: lsof -i :5000 | grep LISTEN | awk '{print $2}' | xargs kill -9
+
+Issue: Port 3000 already in use
+  → Kill: lsof -i :3000 | grep LISTEN | awk '{print $2}' | xargs kill -9
+
+Issue: Backend server is not running
+  → Check Terminal 1 is running: npm start
+
+Issue: Migrations didn't run
+  → Delete valuation.db and restart backend
+
+Issue: LocalStorage not showing tokens
+  → Open DevTools F12 → Application tab → Local Storage on left
+
+Issue: Can't login after registration
+  → Make sure password is exactly: TestPass123!
+  → Check backend logs for errors
+
+Need help? Check TESTING_WALKTHROUGH.md for detailed instructions!
