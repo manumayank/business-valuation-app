@@ -289,30 +289,98 @@ function scoreQ13CustomerPaymentTerms(customerPaymentTerms) {
 /**
  * Q14: Single Points of Failure (SPOF)
  * Purpose: Operational redundancy / risk
- * @param {number} numberOfSPOFs - Count of SPOFs
- * @returns {number} Score (1 to 5)
+ * IMPORTANT: Per Excel spec, SPOFs use NEGATIVE scoring!
+ * Formula: 0=0, 1=-2, 2=-3, 3=-4, 4+=-5
+ * @param {number|string} numberOfSPOFs - Count of SPOFs
+ * @returns {number} Score (0 to -5) - NEGATIVE VALUES
  */
 function scoreQ14NumberOfSPOFs(numberOfSPOFs) {
-  if (numberOfSPOFs === null || numberOfSPOFs === undefined) return 1;
+  if (numberOfSPOFs === null || numberOfSPOFs === undefined) return -5; // Assume worst if not answered
 
-  const spofs = typeof numberOfSPOFs === 'string' ? parseInt(numberOfSPOFs, 10) : numberOfSPOFs;
+  let spofs;
+  if (typeof numberOfSPOFs === 'string') {
+    const str = numberOfSPOFs.toLowerCase().trim();
+    // Handle string patterns - check exact matches first, then patterns
+    if (str === '0' || str === 'none' || str === 'zero') {
+      spofs = 0;
+    } else if (str === '1' || str === 'one') {
+      spofs = 1;
+    } else if (str === '2' || str === 'two') {
+      spofs = 2;
+    } else if (str === '3' || str === 'three') {
+      spofs = 3;
+    } else if (str === '4' || str === 'four') {
+      spofs = 4;
+    } else if (str === '5' || str === 'five') {
+      spofs = 5;
+    } else if (str.includes('2-3')) {
+      spofs = 3; // Use higher value for range
+    } else if (str.includes('4-5')) {
+      spofs = 5; // Use higher value for range
+    } else if (str.includes('6') || str.includes('+')) {
+      spofs = 6;
+    } else {
+      // Try to extract number
+      const match = str.match(/\d+/);
+      spofs = match ? parseInt(match[0], 10) : 6;
+    }
+  } else {
+    spofs = numberOfSPOFs;
+  }
 
-  if (isNaN(spofs) || spofs >= 6) return 1;
-  if (spofs === 0) return 5;
-  if (spofs === 1) return 4;
-  if (spofs >= 2 && spofs <= 3) return 3;
-  if (spofs >= 4 && spofs <= 5) return 2;
+  if (isNaN(spofs)) return -5;
 
-  return 1;
+  // Excel formula: If(H24=0,0,If(H24=1,-2,If(H24=2,-3,If(H24=3,-4,-5))))
+  if (spofs === 0) return 0;   // No SPOFs = no penalty
+  if (spofs === 1) return -2;  // 1 SPOF
+  if (spofs === 2) return -3;  // 2 SPOFs
+  if (spofs === 3) return -4;  // 3 SPOFs
+  return -5;                    // 4+ SPOFs
 }
 
 /**
- * Calculate total risk score from all 14 questions
- * @param {Object} answers - Object containing all answer fields
- * @returns {Object} Risk score result with score, category, and breakdown
+ * Q15: Needed Sale Price
+ * Purpose: Determine if current valuation meets owner's exit needs
+ * Formula: if(setting=="on", if(EBITDA*3.5/neededPrice > 1, 1+(1+ratio), -4*(1/ratio)), 5)
+ * @param {Object} params - Q15 parameters
+ * @param {boolean} params.enabled - Whether Q15 is enabled (toggle on/off)
+ * @param {number} params.neededSalePrice - Amount owner needs from sale
+ * @param {number} params.ebitda - Current EBITDA (needed for calculation)
+ * @returns {number} Score (can be negative or positive)
  */
-function calculateRiskScore(answers) {
-  // Calculate individual question scores
+function scoreQ15NeededSalePrice(params) {
+  if (!params || !params.enabled) {
+    return 5; // If toggle is off, return 5
+  }
+
+  const neededPrice = parseCurrency(params.neededSalePrice);
+  const ebitda = parseCurrency(params.ebitda);
+
+  if (neededPrice <= 0 || ebitda <= 0) {
+    return 5; // Default if invalid inputs
+  }
+
+  // Formula: EBITDA * 3.5 / needed price
+  const ratio = (ebitda * 3.5) / neededPrice;
+
+  // Excel formula: if(ratio > 1, 1 + (1 + ratio), -4 * (1/ratio))
+  if (ratio > 1) {
+    return Math.min(5, 1 + (1 + ratio)); // Cap at 5
+  } else {
+    return Math.max(-5, -4 * (1 / ratio)); // Floor at -5
+  }
+}
+
+/**
+ * Calculate total risk score from all 15 questions
+ * Includes Grade (A-F) and Probability of Sale
+ * @param {Object} answers - Object containing all answer fields
+ * @param {number} sizeScore - Size score from EBITDA (0-30)
+ * @param {Object} q15Params - Q15 parameters (enabled, neededSalePrice, ebitda)
+ * @returns {Object} Risk score result with score, grade, probability, and breakdown
+ */
+function calculateRiskScore(answers, sizeScore = 0, q15Params = null) {
+  // Calculate individual question scores (Q1-Q14)
   const scores = {
     q1_fiscalYearEnd: scoreQ1FiscalYearEnd(answers.fiscalYearEnd),
     q2_incorporated: scoreQ2Incorporated(answers.incorporated),
@@ -330,29 +398,84 @@ function calculateRiskScore(answers) {
     q14_numberOfSPOFs: scoreQ14NumberOfSPOFs(answers.numberOfSPOFs)
   };
 
-  // Sum all scores
-  const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+  // Add Q15 score if provided
+  if (q15Params) {
+    scores.q15_neededSalePrice = scoreQ15NeededSalePrice(q15Params);
+  }
 
-  // Determine risk category
+  // Sum all Q1-Q14 scores (or Q1-Q15 if Q15 is enabled)
+  const totalRiskScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
+
+  // Combined score includes size score
+  // Excel formula: (totalRiskScore + sizeScore) / ((q15Enabled ? 5 : 0) * 5 + 2)
+  const q15Enabled = q15Params && q15Params.enabled;
+  const divisor = (q15Enabled ? 5 : 0) * 5 + 2; // 27 if Q15 on, 2 if off
+  const combinedScore = totalRiskScore + sizeScore;
+
+  // Calculate score percentage (capped at 100%)
+  // Excel formula: if(combinedScore/divisor > 1, 1, combinedScore/divisor)
+  const maxPossibleScore = 14 * 5 + 30 + (q15Enabled ? 5 : 0); // 70 + 30 + 5 = 105 max
+  const scorePercentage = Math.min(1, combinedScore / maxPossibleScore);
+
+  // Determine Grade (A, B, C, D, F)
+  // Excel: A (≥90%), B (75-89%), C (60-74%), D (50-59%), F (<50%)
+  let grade;
+  if (scorePercentage >= 0.90) {
+    grade = 'A';
+  } else if (scorePercentage >= 0.75) {
+    grade = 'B';
+  } else if (scorePercentage >= 0.60) {
+    grade = 'C';
+  } else if (scorePercentage >= 0.50) {
+    grade = 'D';
+  } else {
+    grade = 'F';
+  }
+
+  // Determine Probability of Sale
+  // Excel: Very High (A), High (B), Medium (C), Low (D), Very Low (F)
+  const probabilityMap = {
+    'A': 'Very High',
+    'B': 'High',
+    'C': 'Medium',
+    'D': 'Low',
+    'F': 'Very Low'
+  };
+  const probabilityOfSale = probabilityMap[grade];
+
+  // Determine risk category (legacy support)
   let riskCategory;
-  if (totalScore <= RISK_CATEGORIES.HIGH.max) {
+  if (combinedScore <= RISK_CATEGORIES.HIGH.max) {
     riskCategory = 'HIGH';
-  } else if (totalScore <= RISK_CATEGORIES.MEDIUM.max) {
+  } else if (combinedScore <= RISK_CATEGORIES.MEDIUM.max) {
     riskCategory = 'MEDIUM';
   } else {
     riskCategory = 'LOW';
   }
 
   return {
-    riskScore: totalScore,
+    // Primary results
+    riskScore: totalRiskScore,
+    sizeScore: sizeScore,
+    combinedScore: combinedScore,
+    scorePercentage: scorePercentage,
+    grade: grade,
+    probabilityOfSale: probabilityOfSale,
+
+    // Legacy fields (for backward compatibility)
     riskCategory,
     riskLabel: RISK_CATEGORIES[riskCategory].label,
     riskDescription: RISK_CATEGORIES[riskCategory].description,
+
+    // Breakdown
     breakdown: scores,
-    maxPossibleScore: 70,
-    minPossibleScore: 1, // Theoretical minimum with Q4 at -3 and others at 1 = -3 + 13 = 10, but spec says 1
+
+    // Metadata
+    maxPossibleScore: maxPossibleScore,
+    minPossibleScore: -10, // With negative scores possible
     answeredQuestions: Object.keys(answers).length,
-    totalQuestions: 14
+    totalQuestions: q15Enabled ? 15 : 14,
+    q15Enabled: q15Enabled
   };
 }
 
@@ -656,19 +779,33 @@ function validateEBITDAInputs(data) {
 
 /**
  * Size Score breakpoints - maps EBITDA to a score (0-30)
- * Based on Data Page from Excel specification
- * Configurable table for easy updates
+ * Based on Data Page from Excel specification (exact match)
+ *
+ * From Excel Data Page:
+ * | EBITDA      | Score |
+ * |-------------|-------|
+ * | < 100,000   | 0     |
+ * | 100,000     | 0     |
+ * | 250,000     | 1     |
+ * | 500,000     | 3     |
+ * | 750,000     | 5     |
+ * | 1,000,000   | 10    |
+ * | 1,500,000   | 12    |
+ * | 2,000,000   | 20    |
+ * | 2,500,000   | 25    |
+ * | 3,000,000+  | 30    |
  */
 const SIZE_SCORE_TABLE = [
   { maxEbitda: 100000, score: 0 },
-  { maxEbitda: 250000, score: 1 },
-  { maxEbitda: 500000, score: 3 },
-  { maxEbitda: 750000, score: 5 },
-  { maxEbitda: 1000000, score: 10 },
-  { maxEbitda: 2000000, score: 12 },
-  { maxEbitda: 5000000, score: 20 },
-  { maxEbitda: 10000000, score: 25 },
-  { maxEbitda: Infinity, score: 30 }
+  { maxEbitda: 250000, score: 0 },   // Up to 250K = 0
+  { maxEbitda: 500000, score: 1 },   // 250K-500K = 1
+  { maxEbitda: 750000, score: 3 },   // 500K-750K = 3
+  { maxEbitda: 1000000, score: 5 },  // 750K-1M = 5
+  { maxEbitda: 1500000, score: 10 }, // 1M-1.5M = 10
+  { maxEbitda: 2000000, score: 12 }, // 1.5M-2M = 12
+  { maxEbitda: 2500000, score: 20 }, // 2M-2.5M = 20
+  { maxEbitda: 3000000, score: 25 }, // 2.5M-3M = 25
+  { maxEbitda: Infinity, score: 30 } // 3M+ = 30
 ];
 
 /**
@@ -873,10 +1010,52 @@ function calculatePLComparison(params) {
 // =============================================================================
 
 /**
- * Common EBITDA multiples by business type
- * These are median values for typical small-to-mid market businesses
+ * Single Points of Failure (SPOF) Reference Data
+ * From Excel "Single Points of Failure" sheet
+ */
+const SPOF_TYPES = [
+  { name: 'Key Personnel', severity: 'High', description: 'Heavy reliance on individuals with critical skills/knowledge' },
+  { name: 'Customer Concentration', severity: 'Very High', description: 'Single customer >15% of annual revenue' },
+  { name: 'Supply Chain', severity: 'High', description: 'Single supplier for critical materials' },
+  { name: 'Commodity Based', severity: 'High', description: 'Heavy reliance on specific commodity prices' },
+  { name: 'Equipment Reliance', severity: 'Medium', description: 'Single piece of critical equipment' },
+  { name: 'Geography', severity: 'Medium', description: 'Single location vulnerability' },
+  { name: 'Data Centers', severity: 'Medium', description: 'All data/services in single data center' },
+  { name: 'IT Security', severity: 'High', description: 'Lack of robust security measures' },
+  { name: 'Network Connectivity', severity: 'Medium', description: 'Single ISP dependency' },
+  { name: 'Software Dependencies', severity: 'High', description: 'Critical software with no backup plan' },
+  { name: 'Power Supply', severity: 'Medium', description: 'No backup power sources' },
+  { name: 'Third-Party Service Providers', severity: 'Medium', description: 'Heavy vendor dependency' },
+  { name: 'Hardware Components', severity: 'Medium', description: 'No hardware redundancy' },
+  { name: 'Regulatory Compliance', severity: 'High', description: 'Non-adherence to regulations' },
+  { name: 'Financial Dependencies', severity: 'Medium', description: 'Single funding source' },
+  { name: 'Industry Activity', severity: 'High', description: 'Industry at end of lifecycle' }
+];
+
+/**
+ * Common EBITDA multiples - Percentile-based from Excel spec
+ * From Excel PART 1, rows 49-51
  */
 const COMMON_MULTIPLES = {
+  // Percentile-based (from Excel Data Page)
+  percentiles: {
+    p10: 1.5,   // 10th percentile
+    p25: 2.0,   // 25th percentile
+    median: 3.5, // 50th percentile (median)
+    p75: 5.0,   // 75th percentile
+    p90: 8.0,   // 90th percentile
+    mean: 3.5   // Mean
+  },
+  // Industry-specific percentiles
+  industry: {
+    p10: 1.7,
+    p25: 2.7,
+    median: 4.0,
+    p75: 5.7,
+    p90: 8.7,
+    mean: 4.0
+  },
+  // Legacy size-based (for backward compatibility)
   small: { min: 2.0, median: 3.0, max: 4.0, label: 'Small Business (<$1M revenue)' },
   medium: { min: 3.0, median: 4.0, max: 5.0, label: 'Medium Business ($1M-$10M revenue)' },
   large: { min: 4.0, median: 5.0, max: 7.0, label: 'Large Business ($10M+ revenue)' },
@@ -893,15 +1072,57 @@ const MULTIPLE_TYPES = {
 };
 
 /**
+ * Get risk-weighted multiple based on score percentage
+ * Implements Excel formula for percentile selection:
+ * Score ≤50%: 10th percentile
+ * Score ≤60%: 25th percentile
+ * Score ≤70%: Median
+ * Score ≤85%: Average(Median, 75th)
+ * Score ≤95%: 75th percentile
+ * Score >95%: Average(75th, 90th)
+ *
+ * @param {number} scorePercentage - Score as percentage (0-1)
+ * @param {Object} multiples - Percentile multiples object
+ * @param {boolean} isCanadian - Whether to apply Canadian discount (-0.5)
+ * @returns {number} Risk-weighted multiple
+ */
+function getRiskWeightedMultiple(scorePercentage, multiples, isCanadian = false) {
+  let multiple;
+
+  if (scorePercentage <= 0.50) {
+    multiple = multiples.p10;
+  } else if (scorePercentage <= 0.60) {
+    multiple = multiples.p25;
+  } else if (scorePercentage <= 0.70) {
+    multiple = multiples.median;
+  } else if (scorePercentage <= 0.85) {
+    multiple = (multiples.median + multiples.p75) / 2;
+  } else if (scorePercentage <= 0.95) {
+    multiple = multiples.p75;
+  } else {
+    multiple = (multiples.p75 + multiples.p90) / 2;
+  }
+
+  // Apply Canadian discount if applicable
+  if (isCanadian) {
+    multiple = multiple - 0.5;
+  }
+
+  return Math.max(0.5, multiple); // Floor at 0.5x
+}
+
+/**
  * Select the appropriate multiple based on type and inputs
+ * Updated to use Excel-spec risk weighting formula
  *
  * @param {Object} options - Multiple selection options
  * @param {string} options.multipleType - 'custom', 'common', or 'industry'
  * @param {number} options.customMultiple - Custom multiple value (if type is custom)
  * @param {string} options.businessSize - 'small', 'medium', or 'large' (if type is common)
  * @param {number} options.industryMultiple - Industry-specific multiple (if type is industry)
- * @param {number} options.riskScore - Risk score for potential adjustment
+ * @param {number} options.scorePercentage - Score percentage (0-1) for risk weighting
  * @param {boolean} options.applyRiskWeighting - Whether to adjust multiple by risk
+ * @param {boolean} options.isCanadian - Whether to apply Canadian discount
  * @returns {Object} Selected multiple with details
  */
 function selectMultiple(options) {
@@ -910,11 +1131,13 @@ function selectMultiple(options) {
     customMultiple,
     businessSize = 'medium',
     industryMultiple,
-    riskScore,
-    applyRiskWeighting = false
+    scorePercentage,
+    applyRiskWeighting = false,
+    isCanadian = false
   } = options;
 
   let baseMultiple;
+  let riskWeightedMultiple;
   let source;
   let range;
 
@@ -928,57 +1151,58 @@ function selectMultiple(options) {
         };
       }
       baseMultiple = parseCurrency(customMultiple);
+      riskWeightedMultiple = baseMultiple; // Custom multiple is not risk-weighted
       source = 'custom';
-      range = { min: baseMultiple, median: baseMultiple, max: baseMultiple };
+      range = { p10: baseMultiple, p25: baseMultiple, median: baseMultiple, p75: baseMultiple, p90: baseMultiple };
       break;
 
     case MULTIPLE_TYPES.INDUSTRY:
-      if (!industryMultiple || industryMultiple <= 0) {
-        // Fall back to common multiples if no industry data
-        const commonData = COMMON_MULTIPLES[businessSize] || COMMON_MULTIPLES.default;
-        baseMultiple = commonData.median;
-        source = 'common (industry fallback)';
-        range = commonData;
+      const industryMultiples = COMMON_MULTIPLES.industry;
+      baseMultiple = industryMultiples.median;
+
+      if (applyRiskWeighting && scorePercentage !== undefined) {
+        riskWeightedMultiple = getRiskWeightedMultiple(scorePercentage, industryMultiples, isCanadian);
       } else {
-        baseMultiple = parseCurrency(industryMultiple);
-        source = 'industry';
-        range = { min: baseMultiple * 0.8, median: baseMultiple, max: baseMultiple * 1.2 };
+        riskWeightedMultiple = isCanadian ? baseMultiple - 0.5 : baseMultiple;
       }
+
+      source = 'industry';
+      range = industryMultiples;
       break;
 
     case MULTIPLE_TYPES.COMMON:
     default:
-      const commonData = COMMON_MULTIPLES[businessSize] || COMMON_MULTIPLES.default;
-      baseMultiple = commonData.median;
-      source = 'common';
-      range = commonData;
+      const commonMultiples = COMMON_MULTIPLES.percentiles;
+      baseMultiple = commonMultiples.median;
+
+      if (applyRiskWeighting && scorePercentage !== undefined) {
+        riskWeightedMultiple = getRiskWeightedMultiple(scorePercentage, commonMultiples, isCanadian);
+      } else {
+        // Fall back to legacy size-based multiples
+        const sizeData = COMMON_MULTIPLES[businessSize] || COMMON_MULTIPLES.default;
+        riskWeightedMultiple = isCanadian ? sizeData.median - 0.5 : sizeData.median;
+      }
+
+      source = applyRiskWeighting ? 'common (risk-weighted)' : 'common';
+      range = commonMultiples;
       break;
   }
 
-  // Apply risk weighting if enabled
-  let adjustedMultiple = baseMultiple;
-  let riskAdjustment = 0;
-
-  if (applyRiskWeighting && riskScore !== undefined) {
-    // Risk score 1-70: Higher score = lower risk = higher multiple
-    // Adjustment range: -20% to +20% based on risk score
-    // Score 35 (middle) = no adjustment
-    // Score 70 (best) = +20%
-    // Score 1 (worst) = -20%
-    const riskFactor = (riskScore - 35) / 35; // -1 to +1
-    riskAdjustment = baseMultiple * riskFactor * 0.20; // ±20% max
-    adjustedMultiple = baseMultiple + riskAdjustment;
-  }
+  const riskAdjustment = riskWeightedMultiple - baseMultiple;
 
   return {
     isValid: true,
     multipleType,
     source,
     baseMultiple,
+    riskWeightedMultiple,
     riskAdjustment,
-    adjustedMultiple,
-    multipleUsed: adjustedMultiple,
-    range
+    adjustedMultiple: riskWeightedMultiple,
+    multipleUsed: riskWeightedMultiple,
+    range,
+    isCanadian,
+    applyRiskWeighting,
+    scorePercentage
   };
 }
 
@@ -1304,14 +1528,29 @@ function calculateValueAcceleration(params) {
 
 /**
  * Standard deviation bands for probability distribution
- * Based on normal distribution probabilities
+ * From Excel Data Page - 17-row probability table
+ * One standard deviation = 4.95 (calculated from common multiples range)
  */
+const ONE_STD_DEV = 4.95;
+
 const PROBABILITY_BANDS = [
-  { stdDev: -2, probability: 0.10, label: 'Very Low' },
-  { stdDev: -1, probability: 0.20, label: 'Low' },
-  { stdDev: 0, probability: 0.40, label: 'Most Likely' },
-  { stdDev: 1, probability: 0.20, label: 'High' },
-  { stdDev: 2, probability: 0.10, label: 'Very High' }
+  { stdDev: -2.00, multiple: 1.70, probability: 0.10, label: 'Very Low' },
+  { stdDev: -1.75, multiple: 1.95, probability: 0.20, label: 'Low' },
+  { stdDev: -1.50, multiple: 2.20, probability: 0.30, label: 'Below Average' },
+  { stdDev: -1.25, multiple: 2.45, probability: 0.40, label: 'Below Average' },
+  { stdDev: -1.00, multiple: 2.70, probability: 0.50, label: 'Average' },
+  { stdDev: -0.75, multiple: 2.77, probability: 0.60, label: 'Average' },
+  { stdDev: -0.50, multiple: 2.85, probability: 0.70, label: 'Above Average' },
+  { stdDev: -0.25, multiple: 2.92, probability: 0.80, label: 'Above Average' },
+  { stdDev: 0.00, multiple: 3.00, probability: 0.90, label: 'Most Likely' },
+  { stdDev: 0.25, multiple: 3.67, probability: 0.80, label: 'Above Average' },
+  { stdDev: 0.50, multiple: 4.35, probability: 0.70, label: 'Above Average' },
+  { stdDev: 0.75, multiple: 5.03, probability: 0.60, label: 'High' },
+  { stdDev: 1.00, multiple: 5.70, probability: 0.50, label: 'High' },
+  { stdDev: 1.25, multiple: 6.45, probability: 0.40, label: 'High' },
+  { stdDev: 1.50, multiple: 7.20, probability: 0.30, label: 'Very High' },
+  { stdDev: 1.75, multiple: 7.95, probability: 0.20, label: 'Very High' },
+  { stdDev: 2.00, multiple: 8.70, probability: 0.10, label: 'Very High' }
 ];
 
 /**
@@ -1825,8 +2064,12 @@ function calculateWealthGap(params) {
  */
 function calculateVAC(inputs) {
   const {
-    // Risk assessment answers
+    // Risk assessment answers (can be passed as object or individual q1-q14)
     riskAnswers,
+    q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14,
+
+    // Q15: Needed Sale Price (new)
+    q15,
 
     // Financial data
     revenue,
@@ -1844,20 +2087,67 @@ function calculateVAC(inputs) {
     businessSize,
     industryMultiple,
     applyRiskWeighting,
+    riskWeightingEnabled,
+    isCanadian,
 
     // Value acceleration targets
     targetGrowthRate,
     targetEfficiencyGain,
     efficiencyIsPercentage,
     targetMultipleIncrease,
+    revenueGrowth,
+    ebitdaImprovement,
+    multipleImprovement,
 
     // Wealth gap
     targetValue,
-    yearsToProject
+    yearsToProject,
+    wealthGap
   } = inputs;
 
+  // Build riskAnswers from individual q1-q14 if not provided as object
+  const answers = riskAnswers || {
+    fiscalYearEnd: q1,
+    incorporated: q2,
+    profitLastYear: q3,
+    lastSixMonthPerformance: q4,
+    cleanFinancialYears: q5,
+    hasGeneralManager: q6,
+    projectBased: q7,
+    largestCustomerPercent: q8,
+    ownerHours: q9,
+    leaseYearsRemaining: q10,
+    businessAge: q11,
+    operatingSystem: q12,
+    customerPaymentTerms: q13,
+    numberOfSPOFs: q14
+  };
+
   // Step 1: Calculate Risk Score
-  const riskResult = calculateRiskScore(riskAnswers || {});
+  // First calculate EBITDA to get size score
+  const prelimEbitda = calculateEBITDA({
+    revenue,
+    pretaxProfit,
+    depreciation,
+    interest,
+    discretionary,
+    ownerSalaryAdj,
+    rentAdj,
+    useBaseline
+  });
+
+  // Calculate size score based on EBITDA
+  const sizeScoreResult = prelimEbitda.isValid ? calculateSizeScore(prelimEbitda.adjustedEbitda) : { sizeScore: 0 };
+  const sizeScore = sizeScoreResult.sizeScore;
+
+  // Build Q15 params if provided
+  const q15Params = q15 && q15.enabled ? {
+    enabled: true,
+    neededPrice: q15.neededPrice,
+    ebitda: prelimEbitda.isValid ? prelimEbitda.adjustedEbitda : 0
+  } : null;
+
+  const riskResult = calculateRiskScore(answers, sizeScore, q15Params);
 
   // Step 2: Calculate EBITDA
   const ebitdaResult = calculateEBITDA({
@@ -1880,13 +2170,17 @@ function calculateVAC(inputs) {
   }
 
   // Step 3: Select Multiple
+  // Use riskWeightingEnabled if provided, otherwise fall back to applyRiskWeighting
+  const shouldApplyRiskWeighting = riskWeightingEnabled !== undefined ? riskWeightingEnabled : applyRiskWeighting;
+
   const multipleResult = selectMultiple({
     multipleType,
     customMultiple,
     businessSize,
     industryMultiple,
-    riskScore: riskResult.riskScore,
-    applyRiskWeighting
+    scorePercentage: riskResult.scorePercentage, // Use percentage for risk weighting
+    applyRiskWeighting: shouldApplyRiskWeighting,
+    isCanadian
   });
 
   if (!multipleResult.isValid) {
@@ -1915,16 +2209,21 @@ function calculateVAC(inputs) {
   }
 
   // Step 5: Calculate Value Acceleration
+  // Use frontend parameters (revenueGrowth, ebitdaImprovement, multipleImprovement) if provided
+  const effectiveGrowthRate = revenueGrowth !== undefined ? revenueGrowth : targetGrowthRate;
+  const effectiveEfficiencyGain = ebitdaImprovement !== undefined ? ebitdaImprovement : targetEfficiencyGain;
+  const effectiveMultipleIncrease = multipleImprovement !== undefined ? multipleImprovement : targetMultipleIncrease;
+
   const vacResult = calculateValueAcceleration({
     currentRevenue: ebitdaResult.revenue,
     currentEBITDA: ebitdaResult.adjustedEbitda,
     currentValue: valueResult.currentValue,
     multiple: multipleResult.multipleUsed,
     ebitdaMargin: ebitdaResult.adjustedEbitdaMargin,
-    targetGrowthRate,
-    targetEfficiencyGain,
-    efficiencyIsPercentage,
-    targetMultipleIncrease
+    targetGrowthRate: effectiveGrowthRate,
+    targetEfficiencyGain: effectiveEfficiencyGain,
+    efficiencyIsPercentage: true,
+    targetMultipleIncrease: effectiveMultipleIncrease
   });
 
   // Step 6: Calculate Probability Distribution
@@ -1948,11 +2247,18 @@ function calculateVAC(inputs) {
   return {
     isValid: true,
 
-    // Layer 1: Risk
-    riskScore: riskResult.riskScore,
-    riskCategory: riskResult.riskCategory,
-    riskLabel: riskResult.riskLabel,
-    riskBreakdown: riskResult.breakdown,
+    // Layer 1: Risk (including Grade and Probability)
+    riskScore: {
+      totalScore: riskResult.combinedScore,  // Use combinedScore (risk + size score)
+      riskOnlyScore: riskResult.riskScore,   // Raw risk score without size
+      sizeScore: riskResult.sizeScore,       // Size score component
+      maxPossibleScore: riskResult.maxPossibleScore,
+      scorePercentage: riskResult.scorePercentage,
+      grade: riskResult.grade,
+      probabilityOfSale: riskResult.probabilityOfSale,
+      category: riskResult.riskCategory,
+      breakdown: riskResult.breakdown
+    },
 
     // Layer 2: EBITDA
     ebitda: ebitdaResult.ebitda,
@@ -2005,6 +2311,99 @@ function calculateVAC(inputs) {
 }
 
 // =============================================================================
+// DIGITAL ASSESSMENT INTEGRATION
+// =============================================================================
+
+/**
+ * Apply digital assessment adjustments to a VAC result
+ * Integrates the digital readiness score into the valuation
+ *
+ * @param {Object} vacResult - Result from calculateVAC
+ * @param {Object} assessmentAdjustments - Adjustments from assessment scoring engine
+ * @returns {Object} Enhanced VAC result with digital adjustments
+ */
+function applyDigitalAssessmentAdjustments(vacResult, assessmentAdjustments) {
+  if (!vacResult || !vacResult.isValid) {
+    return vacResult;
+  }
+
+  if (!assessmentAdjustments) {
+    return {
+      ...vacResult,
+      digitalAssessment: null
+    };
+  }
+
+  const {
+    digital_readiness_adjustment = 0,
+    risk_factor = 1,
+    quick_win_premium = 0,
+    combined_adjustment = 1,
+    supporting_data = {}
+  } = assessmentAdjustments;
+
+  // Apply combined adjustment to current value
+  const originalValue = vacResult.currentValue;
+  const adjustedValue = Math.round(originalValue * combined_adjustment);
+  const valueChange = adjustedValue - originalValue;
+
+  // Apply to probability distribution values
+  const adjustedValuationRange = vacResult.valuationRange ? {
+    low: Math.round(vacResult.valuationRange.low * combined_adjustment),
+    mostLikely: Math.round(vacResult.valuationRange.mostLikely * combined_adjustment),
+    high: Math.round(vacResult.valuationRange.high * combined_adjustment)
+  } : null;
+
+  // Apply to uplift calculations
+  const adjustedUplift = vacResult.uplift ? {
+    ...vacResult.uplift,
+    newTotalValue: Math.round(vacResult.uplift.newTotalValue * combined_adjustment)
+  } : null;
+
+  return {
+    ...vacResult,
+
+    // Update current value with adjustment
+    currentValue: adjustedValue,
+    originalValue: originalValue,
+    valuationRange: adjustedValuationRange,
+    uplift: adjustedUplift,
+
+    // Digital Assessment Details
+    digitalAssessment: {
+      applied: true,
+      overallScore: supporting_data.overall_score || null,
+      riskLevel: supporting_data.risk_level || null,
+      quickWinsCompleted: supporting_data.quick_wins_completed || 0,
+      quickWinsTotal: supporting_data.quick_wins_total || 0,
+
+      adjustments: {
+        digitalReadiness: {
+          factor: digital_readiness_adjustment,
+          label: digital_readiness_adjustment >= 0 ? 'Premium' : 'Discount',
+          impact: Math.round(originalValue * digital_readiness_adjustment)
+        },
+        riskFactor: {
+          factor: risk_factor,
+          label: risk_factor >= 1 ? 'No Risk Penalty' : 'Risk Discount',
+          impact: Math.round(originalValue * (risk_factor - 1))
+        },
+        quickWinPremium: {
+          factor: quick_win_premium,
+          label: 'Quick Wins Premium',
+          impact: Math.round(originalValue * quick_win_premium)
+        },
+        combined: {
+          factor: combined_adjustment,
+          totalImpact: valueChange,
+          percentageChange: ((combined_adjustment - 1) * 100).toFixed(1) + '%'
+        }
+      }
+    }
+  };
+}
+
+// =============================================================================
 // EXPORTS
 // =============================================================================
 
@@ -2021,17 +2420,18 @@ module.exports = {
   validateEBITDAInputs,
   parseCurrency,
 
-  // Size Score (NEW)
+  // Size Score
   calculateSizeScore,
   SIZE_SCORE_TABLE,
 
-  // P&L Module (NEW)
+  // P&L Module
   calculateCurrentPL,
   calculateForecastedPL,
   calculatePLComparison,
 
   // Multiple Selection
   selectMultiple,
+  getRiskWeightedMultiple,
   COMMON_MULTIPLES,
   MULTIPLE_TYPES,
 
@@ -2047,11 +2447,12 @@ module.exports = {
   // Probability Distribution
   calculateProbabilityDistribution,
   PROBABILITY_BANDS,
+  ONE_STD_DEV,
 
   // Wealth Gap (Original - backward compatible)
   calculateWealthGap,
 
-  // Wealth Gap Enhanced 5-Step (NEW)
+  // Wealth Gap Enhanced 5-Step
   calculateCurrentScenario,
   defineExitGoals,
   calculateWealthGapStep3,
@@ -2062,6 +2463,9 @@ module.exports = {
 
   // Master VAC Function
   calculateVAC,
+
+  // Digital Assessment Integration
+  applyDigitalAssessmentAdjustments,
 
   // Individual Question Scorers (for testing)
   scoreQ1FiscalYearEnd,
@@ -2078,8 +2482,10 @@ module.exports = {
   scoreQ12OperatingSystem,
   scoreQ13CustomerPaymentTerms,
   scoreQ14NumberOfSPOFs,
+  scoreQ15NeededSalePrice,  // NEW: Q15
 
   // Constants
   RISK_CATEGORIES,
-  BASELINE_MARGINS
+  BASELINE_MARGINS,
+  SPOF_TYPES  // NEW: SPOF reference data
 };
